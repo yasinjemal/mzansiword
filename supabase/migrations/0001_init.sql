@@ -195,6 +195,44 @@ create table public.audit_log (
 alter table public.audit_log enable row level security;
 revoke all on public.audit_log from anon, authenticated;
 
+-- ---------------------------------------------------------------- streaks
+
+-- Any-track streak, updated atomically on solve (a single UPDATE, so two
+-- concurrent track solves cannot double-increment). Service role only.
+create or replace function public.update_streak_on_solve(
+  p_user uuid,
+  p_today date,
+  p_yesterday date
+)
+returns table (current_streak int, best_streak int)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.profiles p set
+    current_streak = case
+      when p.last_solved_date = p_today then p.current_streak
+      when p.last_solved_date = p_yesterday then p.current_streak + 1
+      else 1
+    end,
+    best_streak = greatest(p.best_streak, case
+      when p.last_solved_date = p_today then p.current_streak
+      when p.last_solved_date = p_yesterday then p.current_streak + 1
+      else 1
+    end),
+    last_solved_date = p_today
+  where p.id = p_user;
+
+  return query
+    select p.current_streak, p.best_streak
+    from public.profiles p where p.id = p_user;
+end;
+$$;
+
+revoke execute on function public.update_streak_on_solve(uuid, date, date)
+  from public, anon, authenticated;
+
 -- ---------------------------------------------------------------- winner wall
 
 -- Rendered server-side with the service role; not exposed to client keys.
