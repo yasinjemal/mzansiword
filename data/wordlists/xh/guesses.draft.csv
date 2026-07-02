@@ -1,0 +1,120 @@
+# DRAFT — AI-generated, NOT reviewed by a native isiXhosa speaker.
+# Guess dictionary: extra words a player may type as a valid guess (4-6
+# letters only — the grid never exceeds 6). All answer words are merged in
+# automatically by scripts/import-wordlists.ts; this file holds guessable
+# words that are NOT answer material (rarer forms, plurals, function words).
+# Needs native-speaker expansion — a small dictionary is safe but strict.
+# Format: word,notes
+iindlu,houses
+imizi,homesteads
+sithi,we say
+naye,with him / her
+nabo,with them
+nina,you (plural)
+bethu,our
+wethu,our (class 1/3)
+yethu,our (class 4/9)
+lethu,our (class 5)
+sethu,our (class 7)
+zethu,our (class 8/10)
+wakho,your
+yakho,your (class 4/9)
+lakho,your (class 5)
+sakho,your (class 7)
+zakho,your (class 8/10)
+wakhe,his / hers
+yakhe,his / hers (class 4/9)
+lakhe,his / hers (class 5)
+phezu,on top of
+ngase,near / towards
+kuba,because
+ukuze,so that
+kule,in this
+kuzo,in them
+kuyo,in it
+kubo,in them (class 2)
+kuwe,to you
+kuye,to him / her
+kuthi,to us
+futhi,again / also
+kakubi,badly
+lusizi,sad / pitiful
+buyisa,bring back
+khupha,take out
+bonisa,show
+bizela,call for
+cocisa,have cleaned
+coca,clean
+lunga,be right / ready
+phuza,be late
+ngxama,hurry
+zola,be calm
+thula,be quiet
+duda,encourage
+buzisa,enquire
+landa,fetch
+thwala,carry on the head
+gcwala,become full
+gcwele,full
+phela,end / finish
+apho,there / where
+naphi,anywhere
+ndawo,place (stem)
+mntu,person (stem)
+bantu,people (stem)
+zinto,things (stem)
+yinto,it is a thing
+yindlu,it is a house
+umvubo,bread and sour milk
+iikati,cats
+izinja,dogs
+amatye,stones
+imithi,trees
+igadi,garden
+umculi,singer
+umfuyi,stock farmer
+umlimi,crop farmer
+inesi,nurse
+ijoni,soldier
+ihagu,pig
+ithole,calf
+imazi,cow / female animal
+ukhozi,eagle
+imfene,baboon
+inkawu,monkey
+intini,otter
+ufudo,tortoise
+isele,frog
+uluthi,stick / rod
+ifoni,phone
+usiba,pen / feather
+ipeni,pen
+ilali,village
+ingca,grass
+iapile,apple
+umsobo,nightshade berries
+ukusa,dawn
+emini,at midday
+kusasa,in the morning
+wonke,all / whole (class 1/3)
+lonke,all (class 5)
+sonke,all of us
+konke,everything
+noko,nevertheless
+kanje,like this
+njalo,always / so
+kuhle,it is nice
+kubi,it is bad
+kudala,long ago
+mhle,beautiful (class 1)
+bahle,beautiful (class 2)
+zihle,beautiful (class 8/10)
+mdala,old (class 1)
+mkhulu,big (class 1)
+mnye,one (class 1)
+babini,two (class 2)
+zine,four (class 8/10)
+mbini,two (stem)
+ntathu,three (stem)
+sine,four (class 7)
+hlanu,five (stem)
