@@ -37,7 +37,8 @@ export default function Rules() {
       <ul className="list-disc space-y-1 pl-5">
         <li>
           Daily draw at 21:00: 2 winners of R29 airtime, drawn randomly from
-          that day&apos;s solvers by a verifiable computer draw. Every draw's
+          that day&apos;s solvers by a verifiable computer draw. Every
+          draw&apos;s
           random seed and entrant list are recorded so the result can be
           independently reproduced.
         </li>

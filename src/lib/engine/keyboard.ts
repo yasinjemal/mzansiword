@@ -21,8 +21,11 @@ const QWERTY: string[][] = [
   [ENTER, "z", "x", "c", "v", "b", "n", "m", BACKSPACE],
 ];
 
-export function keyboardLayout(_track: TrackCode): string[][] {
-  return QWERTY;
+// Per-track overrides go here if a future language needs a different layout.
+const LAYOUTS: Partial<Record<TrackCode, string[][]>> = {};
+
+export function keyboardLayout(track: TrackCode): string[][] {
+  return LAYOUTS[track] ?? QWERTY;
 }
 
 /** Best mark seen per letter across all scored guesses, for key colouring. */

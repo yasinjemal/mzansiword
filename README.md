@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mzansi Word 🇿🇦
 
-## Getting Started
+A free daily word game in South Africa's languages (isiXhosa + English at
+launch), with real airtime prizes via a nightly random draw among solvers —
+a CPA s36 promotional competition, not gambling. Mobile-first PWA built to be
+opened from WhatsApp links.
 
-First, run the development server:
+**Stack:** Next.js (App Router) + Supabase (Postgres, phone-OTP auth, RLS),
+deployed on Vercel with a nightly cron.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Security model (the part that matters)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- The day's answer lives only in the `puzzles` table, which has **no RLS
+  policy** — client keys physically cannot read it. All guess scoring happens
+  server-side in `/api/guess`.
+- Every game/prize write goes through route handlers using the service-role
+  key (`src/lib/supabase/admin.ts`, guarded by `server-only`).
+- Draws are auditable: each stores a crypto-random seed + sorted entrant
+  snapshot; `npm run verify-draw` reproduces any past draw exactly.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## First-time setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Supabase project** (free tier): create one at supabase.com, then:
+   ```
+   npx supabase link --project-ref <YOUR_PROJECT_REF>
+   npx supabase db push          # applies supabase/migrations/0001_init.sql
+   ```
+2. **Env:** copy `.env.example` to `.env.local` and fill in the project URL,
+   anon key, service-role key (Project Settings → API), a random
+   `CRON_SECRET`, and your own number in `ADMIN_PHONES`.
+3. **Phone OTP:** in Supabase Dashboard → Authentication → Providers → Phone,
+   enable it and connect Twilio Verify (enable the WhatsApp channel — much
+   cheaper than SA SMS, with SMS fallback). Set per-phone and per-IP rate
+   limits under Auth → Rate Limits.
+4. **Words + puzzles:**
+   ```
+   npm run import-wordlists                       # loads draft CSVs
+   npm run schedule-puzzles -- --days 90 --allow-draft   # dev only!
+   ```
+   For production: get the draft lists reviewed
+   (`docs/wordlist-review-checklist.md`), mark rows `approved` in
+   `words_answers`, then run the scheduler **without** `--allow-draft`.
+5. **Run:** `npm run dev` → http://localhost:3000. Sign in with your real
+   number (Twilio trial works), play, then test the draw:
+   ```
+   curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-draw
+   npm run verify-draw
+   ```
 
-## Learn More
+## Deploy (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+- Import the repo, set all `.env.example` vars in Project → Settings →
+  Environment Variables.
+- `vercel.json` schedules `/api/cron/daily-draw` at 19:00 UTC = **21:00 SAST**
+  nightly (SA has no DST). Vercel sends `CRON_SECRET` automatically as the
+  Authorization bearer.
+- After the first deploy, set `NEXT_PUBLIC_APP_URL` to the real domain
+  (it also arms the production guard in `schedule-puzzles`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Operating the pilot
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Task | How |
+|---|---|
+| Nightly winners | Drawn automatically at 21:00 SAST; players see a claim banner in-app |
+| Pay a prize | Winner claims (confirms network) → `/admin/prizes` → send airtime from your banking app → "Mark paid" with the reference |
+| Suspicious solves | `/admin/flagged` (sub-10s solves are auto-excluded from draws); unflag or ban |
+| Audit a draw | `/admin/draws` or `npm run verify-draw -- --draw <id>` |
+| Top up puzzles | `npm run schedule-puzzles -- --days 90` monthly (approved words only) |
+| Win cap | Max 2 prizes per number per calendar month (automatic) |
 
-## Deploy on Vercel
+Admin pages are at `/admin` — visible only to numbers in `ADMIN_PHONES`
+(everyone else gets a 404).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Before public launch (non-negotiables)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Native-speaker review of the isiXhosa lists (see
+      `docs/wordlist-review-checklist.md`) — the lists ship as AI DRAFTS.
+- [ ] Replace `[PROMOTER NAME]` / `[CONTACT EMAIL]` in `/rules` and
+      `/privacy` pages.
+- [ ] One attorney pass over the competition rules (CPA s36) before scaling.
+- [ ] Reschedule production puzzles from approved words only (the scheduler
+      refuses `--allow-draft` when `NEXT_PUBLIC_APP_URL` is production).
+
+## Scripts
+
+- `npm test` — engine, time-boundary, RNG, and share-card unit tests
+- `npm run import-wordlists` — CSVs → `words_answers` / `words_guesses`
+- `npm run schedule-puzzles -- --days N [--from YYYY-MM-DD] [--allow-draft]`
+- `npm run verify-draw [-- --draw <id>]` — reproduce a draw from its seed
+- `node scripts/make-icons.mjs` — regenerate PWA icons / OG image

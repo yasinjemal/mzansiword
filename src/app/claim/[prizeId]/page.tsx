@@ -53,6 +53,8 @@ export default async function ClaimPage({
     );
   }
 
+  // Cosmetic check only — the claim API re-validates expiry authoritatively.
+  // eslint-disable-next-line react-hooks/purity
   if (new Date(prize.expires_at).getTime() < Date.now()) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center text-center">

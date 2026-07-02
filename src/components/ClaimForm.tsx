@@ -20,9 +20,12 @@ export function ClaimForm({
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Display only — the claim API re-validates expiry authoritatively.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const hoursLeft = Math.max(
     0,
-    Math.floor((new Date(expiresAt).getTime() - Date.now()) / 3_600_000),
+    Math.floor((new Date(expiresAt).getTime() - now) / 3_600_000),
   );
 
   async function submit(e: React.FormEvent) {

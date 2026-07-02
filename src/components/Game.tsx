@@ -13,7 +13,7 @@ import type { GuessEntry, GuessResponse, PlayStateDto } from "@/lib/game/types";
 
 interface State {
   committed: GuessEntry[];
-  current: string;
+  input: string;
   status: "playing" | "won" | "lost";
   submitting: boolean;
   toast: string | null;
@@ -34,11 +34,11 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "letter":
       if (state.status !== "playing" || state.submitting) return state;
-      if (state.current.length >= action.length) return state;
-      return { ...state, current: state.current + action.letter };
+      if (state.input.length >= action.length) return state;
+      return { ...state, input: state.input + action.letter };
     case "backspace":
       if (state.status !== "playing" || state.submitting) return state;
-      return { ...state, current: state.current.slice(0, -1) };
+      return { ...state, input: state.input.slice(0, -1) };
     case "submit_start":
       return { ...state, submitting: true, toast: null };
     case "submit_ok": {
@@ -50,7 +50,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         submitting: false,
-        current: "",
+        input: "",
         committed: [...state.committed, action.entry],
         status,
         streak: action.res.streak,
@@ -101,7 +101,7 @@ export function Game({
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, {
     committed: initialPlay?.guesses ?? [],
-    current: "",
+    input: "",
     status: initialPlay?.solved
       ? "won"
       : initialPlay?.gameOver
@@ -137,7 +137,7 @@ export function Game({
       router.push(`/login?next=/play/${track}`);
       return;
     }
-    if (state.current.length !== length) {
+    if (state.input.length !== length) {
       dispatch({ type: "submit_fail", toast: "Not enough letters", shake: true });
       return;
     }
@@ -146,13 +146,13 @@ export function Game({
       const res = await fetch("/api/guess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ track, guess: state.current }),
+        body: JSON.stringify({ track, guess: state.input }),
       });
       if (res.ok) {
         const data: GuessResponse = await res.json();
         dispatch({
           type: "submit_ok",
-          entry: { word: state.current, marks: data.marks },
+          entry: { word: state.input, marks: data.marks },
           res: data,
         });
         return;
@@ -173,7 +173,7 @@ export function Game({
         toast: "You're offline — Mzansi Word needs data to check your guess",
       });
     }
-  }, [authed, length, router, state.current, state.status, state.submitting, track]);
+  }, [authed, length, router, state.input, state.status, state.submitting, track]);
 
   const handleKey = useCallback(
     (key: string) => {
@@ -209,7 +209,7 @@ export function Game({
         length={length}
         maxGuesses={maxGuesses}
         committed={state.committed}
-        current={state.current}
+        current={state.input}
         shaking={state.shaking}
       />
 

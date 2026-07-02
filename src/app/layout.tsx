@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { SwRegister } from "@/components/SwRegister";
 
 export const metadata: Metadata = {
   title: "Mzansi Word — SA's daily word game",
   description:
     "A free daily word game in South Africa's languages. Solve today's word in isiXhosa or English and you're in the draw for airtime prizes.",
+  metadataBase: process.env.NEXT_PUBLIC_APP_URL
+    ? new URL(process.env.NEXT_PUBLIC_APP_URL)
+    : undefined,
+  openGraph: {
+    siteName: "Mzansi Word",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -23,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-dvh flex-col antialiased">
+        <SwRegister />
         <Header />
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-4">
           {children}
