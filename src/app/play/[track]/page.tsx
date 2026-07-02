@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Game } from "@/components/Game";
 import { createClient } from "@/lib/supabase/server";
 import {
+  getPendingPrizes,
   getPlay,
   getProfile,
   getTodayPuzzle,
@@ -55,25 +57,39 @@ export default async function PlayPage({
 
   let initialPlay = null;
   let streak = 0;
+  let pendingPrize = null;
   if (user) {
-    const [play, profile] = await Promise.all([
+    const [play, profile, pending] = await Promise.all([
       getPlay(user.id, puzzle.id),
       getProfile(user.id),
+      getPendingPrizes(user.id),
     ]);
     initialPlay = play ? toPlayStateDto(puzzle, play) : null;
     streak = profile?.current_streak ?? 0;
+    pendingPrize = pending[0] ?? null;
   }
 
   return (
-    <Game
-      track={track}
-      trackName={TRACK_NAMES[track]}
-      length={puzzle.length}
-      puzzleNumber={toPlayStateDto(puzzle, null).puzzleNumber}
-      maxGuesses={MAX_GUESSES}
-      initialPlay={initialPlay}
-      authed={user !== null}
-      initialStreak={streak}
-    />
+    <>
+      {pendingPrize && (
+        <Link
+          href={`/claim/${pendingPrize.id}`}
+          className="mb-3 block rounded-lg bg-green-600 px-4 py-3 text-center font-semibold text-white"
+        >
+          🎉 You won R{(pendingPrize.amount_cents / 100).toFixed(0)} airtime —
+          tap to claim!
+        </Link>
+      )}
+      <Game
+        track={track}
+        trackName={TRACK_NAMES[track]}
+        length={puzzle.length}
+        puzzleNumber={toPlayStateDto(puzzle, null).puzzleNumber}
+        maxGuesses={MAX_GUESSES}
+        initialPlay={initialPlay}
+        authed={user !== null}
+        initialStreak={streak}
+      />
+    </>
   );
 }

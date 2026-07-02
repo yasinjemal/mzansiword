@@ -45,6 +45,16 @@ export function addDays(sastDate: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Start of the current SAST calendar month, as an ISO instant (win cap). */
+export function sastMonthStartIso(now: Date = new Date()): string {
+  return `${sastToday(now).slice(0, 7)}-01T00:00:00+02:00`;
+}
+
+/** Day of week of the current SAST date; 0 = Sunday. */
+export function sastDayOfWeek(now: Date = new Date()): number {
+  return new Date(`${sastToday(now)}T12:00:00Z`).getUTCDay();
+}
+
 /** First puzzle day; puzzle #1 is this date. */
 export const LAUNCH_DATE = "2026-07-06";
 

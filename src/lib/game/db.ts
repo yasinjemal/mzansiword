@@ -94,6 +94,39 @@ export function toPlayStateDto(
   };
 }
 
+export interface PrizeRow {
+  id: number;
+  amount_cents: number;
+  status: string;
+  expires_at: string;
+  created_at: string;
+  network: string | null;
+  paid_at: string | null;
+}
+
+export async function getPendingPrizes(userId: string): Promise<PrizeRow[]> {
+  const { data, error } = await adminClient()
+    .from("prizes")
+    .select("id, amount_cents, status, expires_at, created_at, network, paid_at")
+    .eq("user_id", userId)
+    .eq("status", "pending_claim")
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(`getPendingPrizes: ${error.message}`);
+  return data ?? [];
+}
+
+export async function getMyPrizes(userId: string): Promise<PrizeRow[]> {
+  const { data, error } = await adminClient()
+    .from("prizes")
+    .select("id, amount_cents, status, expires_at, created_at, network, paid_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw new Error(`getMyPrizes: ${error.message}`);
+  return data ?? [];
+}
+
 export async function isValidGuessWord(
   track: TrackCode,
   word: string,
