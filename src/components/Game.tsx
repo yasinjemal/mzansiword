@@ -4,6 +4,10 @@ import { useCallback, useEffect, useReducer } from "react";
 import { useRouter } from "next/navigation";
 import { Board } from "./Board";
 import { Keyboard } from "./Keyboard";
+// Note: the answer is never shown on a loss — the server never sends it, and
+// revealing it would let a burner account mine the day's word for a clean
+// solve on a second account.
+import { ResultPanel } from "./ResultPanel";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
 import type { GuessEntry, GuessResponse, PlayStateDto } from "@/lib/game/types";
 
@@ -210,9 +214,12 @@ export function Game({
       />
 
       {state.status !== "playing" && (
-        <GameOverPanel
+        <ResultPanel
           won={state.status === "won"}
-          guessCount={state.committed.length}
+          track={track}
+          trackName={trackName}
+          puzzleNumber={puzzleNumber}
+          guesses={state.committed}
           maxGuesses={maxGuesses}
           streak={state.streak}
         />
@@ -236,33 +243,3 @@ export function Game({
   );
 }
 
-// The answer is deliberately never shown on a loss: the server never sends
-// it, and revealing it would let a burner account mine the day's word for a
-// clean solve on a second account.
-function GameOverPanel({
-  won,
-  guessCount,
-  maxGuesses,
-  streak,
-}: {
-  won: boolean;
-  guessCount: number;
-  maxGuesses: number;
-  streak: number;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1 text-center">
-      <p className="text-lg font-bold">
-        {won ? `Sharp! ${guessCount}/${maxGuesses} 🎉` : "So close — better luck tomorrow!"}
-      </p>
-      {won && streak > 0 && (
-        <p className="text-sm text-zinc-500">🔥 {streak}-day streak</p>
-      )}
-      {won && (
-        <p className="text-sm text-zinc-500">
-          You&apos;re in today&apos;s airtime draw — winners announced 21:00.
-        </p>
-      )}
-    </div>
-  );
-}

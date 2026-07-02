@@ -10,6 +10,23 @@ import {
 import { MAX_GUESSES } from "@/lib/game/types";
 import { isLiveTrack, TRACK_NAMES } from "@/lib/tracks";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ track: string }>;
+}) {
+  const { track } = await params;
+  const name = TRACK_NAMES[track] ?? "SA";
+  const title = `Mzansi Word — today's ${name} word`;
+  const description =
+    "Free daily word game in South Africa's languages. Solve today's word and you're in the draw for R29 airtime.";
+  return {
+    title,
+    description,
+    openGraph: { title, description, siteName: "Mzansi Word" },
+  };
+}
+
 export default async function PlayPage({
   params,
 }: {
