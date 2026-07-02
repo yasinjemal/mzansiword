@@ -27,6 +27,20 @@ export default function RootLayout({
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-4">
           {children}
         </main>
+        <footer className="mx-auto flex w-full max-w-md items-center justify-center gap-3 px-3 py-3 text-xs text-zinc-400">
+          <a href="/rules" className="underline">
+            Competition rules
+          </a>
+          <a href="/privacy" className="underline">
+            Privacy
+          </a>
+          <a href="/winners" className="underline">
+            Winners
+          </a>
+          <a href="/me" className="underline">
+            My profile
+          </a>
+        </footer>
       </body>
     </html>
   );

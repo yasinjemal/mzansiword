@@ -6,6 +6,10 @@ import { adminClient } from "@/lib/supabase/admin";
 const BodySchema = z.object({
   firstName: z.string().trim().min(1).max(40),
   consent: z.literal(true), // POPIA consent must be explicit
+  deviceFp: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .nullish(),
 });
 
 // Records POPIA consent + first name after OTP signup. consent_popia_at is
@@ -29,6 +33,7 @@ export async function POST(request: Request) {
     .update({
       first_name: parsed.data.firstName,
       consent_popia_at: new Date().toISOString(),
+      ...(parsed.data.deviceFp ? { device_fp: parsed.data.deviceFp } : {}),
     })
     .eq("id", user.id);
   if (error) {

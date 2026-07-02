@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { deviceFingerprint } from "@/lib/fingerprint";
 import { normalizeSaPhone } from "@/lib/phone";
 
 type Step = "phone" | "otp" | "profile";
@@ -84,7 +85,11 @@ function LoginForm() {
     const res = await fetch("/api/profile/consent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName: firstName.trim(), consent: true }),
+      body: JSON.stringify({
+        firstName: firstName.trim(),
+        consent: true,
+        deviceFp: await deviceFingerprint(),
+      }),
     });
     setBusy(false);
     if (!res.ok) {
