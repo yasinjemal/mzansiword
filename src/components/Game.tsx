@@ -11,11 +11,19 @@ import { ResultPanel } from "./ResultPanel";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
 import type { GuessEntry, GuessResponse, PlayStateDto } from "@/lib/game/types";
 
+const FLIP_STAGGER_MS = 260;
+const FLIP_DURATION_MS = 560;
+
 interface State {
   committed: GuessEntry[];
   input: string;
   status: "playing" | "won" | "lost";
   submitting: boolean;
+  /** Tiles of the last row are mid-flip; input stays locked. */
+  revealing: boolean;
+  revealRow: number | null;
+  danceRow: number | null;
+  pending: GuessResponse | null;
   toast: string | null;
   shaking: boolean;
   streak: number;
@@ -27,33 +35,44 @@ type Action =
   | { type: "submit_start" }
   | { type: "submit_ok"; entry: GuessEntry; res: GuessResponse }
   | { type: "submit_fail"; toast: string; shake?: boolean }
+  | { type: "reveal_done" }
   | { type: "toast"; toast: string | null }
   | { type: "shake_end" };
+
+function busy(state: State): boolean {
+  return state.submitting || state.revealing || state.status !== "playing";
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "letter":
-      if (state.status !== "playing" || state.submitting) return state;
-      if (state.input.length >= action.length) return state;
+      if (busy(state) || state.input.length >= action.length) return state;
       return { ...state, input: state.input + action.letter };
     case "backspace":
-      if (state.status !== "playing" || state.submitting) return state;
+      if (busy(state)) return state;
       return { ...state, input: state.input.slice(0, -1) };
     case "submit_start":
       return { ...state, submitting: true, toast: null };
-    case "submit_ok": {
-      const status = action.res.solved
-        ? "won"
-        : action.res.gameOver
-          ? "lost"
-          : "playing";
+    case "submit_ok":
       return {
         ...state,
         submitting: false,
+        revealing: true,
         input: "",
         committed: [...state.committed, action.entry],
-        status,
-        streak: action.res.streak,
+        revealRow: state.committed.length,
+        pending: action.res,
+      };
+    case "reveal_done": {
+      const res = state.pending;
+      if (!res) return { ...state, revealing: false };
+      return {
+        ...state,
+        revealing: false,
+        pending: null,
+        status: res.solved ? "won" : res.gameOver ? "lost" : "playing",
+        danceRow: res.solved ? state.revealRow : null,
+        streak: res.streak,
       };
     }
     case "submit_fail":
@@ -78,6 +97,40 @@ const ERROR_TOASTS: Record<string, string> = {
   already_finished: "You've already played today",
   no_puzzle_today: "No puzzle today — check back soon",
 };
+
+/** Praise by number of guesses used, SA style. */
+const PRAISE = ["", "Yhu! Unreal!", "Sharp sharp!", "Lekker!", "Kiff!", "Eita!", "Phew — close one!"];
+
+function vibrate(pattern: number | number[]) {
+  try {
+    navigator.vibrate?.(pattern);
+  } catch {}
+}
+
+function reducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+async function fireConfetti() {
+  if (reducedMotion()) return;
+  const confetti = (await import("canvas-confetti")).default;
+  const colors = ["#22c55e", "#fbbf24", "#f4f7f5", "#15803d"];
+  confetti({ particleCount: 80, spread: 75, origin: { y: 0.55 }, colors });
+  setTimeout(
+    () =>
+      confetti({
+        particleCount: 50,
+        spread: 100,
+        scalar: 0.8,
+        origin: { y: 0.4 },
+        colors,
+      }),
+    250,
+  );
+}
 
 export function Game({
   track,
@@ -108,6 +161,10 @@ export function Game({
         ? "lost"
         : "playing",
     submitting: false,
+    revealing: false,
+    revealRow: null,
+    danceRow: null,
+    pending: null,
     toast: null,
     shaking: false,
     streak: initialStreak,
@@ -119,9 +176,30 @@ export function Game({
     } catch {}
   }, [track]);
 
+  // Resolve the outcome once the flip animation has played out.
+  useEffect(() => {
+    if (!state.revealing) return;
+    const total = reducedMotion()
+      ? 50
+      : (length - 1) * FLIP_STAGGER_MS + FLIP_DURATION_MS + 80;
+    const t = setTimeout(() => dispatch({ type: "reveal_done" }), total);
+    return () => clearTimeout(t);
+  }, [state.revealing, length]);
+
+  // Celebrate when the reveal lands on a win/loss (not on page reload).
+  useEffect(() => {
+    if (state.revealing || state.pending) return;
+    if (state.danceRow !== null && state.status === "won") {
+      const used = state.committed.length;
+      dispatch({ type: "toast", toast: PRAISE[used] ?? "Lekker!" });
+      vibrate([15, 60, 15, 60, 30]);
+      void fireConfetti();
+    }
+  }, [state.revealing, state.pending, state.danceRow, state.status, state.committed.length]);
+
   useEffect(() => {
     if (!state.toast) return;
-    const t = setTimeout(() => dispatch({ type: "toast", toast: null }), 2500);
+    const t = setTimeout(() => dispatch({ type: "toast", toast: null }), 2200);
     return () => clearTimeout(t);
   }, [state.toast]);
 
@@ -132,13 +210,14 @@ export function Game({
   }, [state.shaking]);
 
   const submit = useCallback(async () => {
-    if (state.submitting || state.status !== "playing") return;
+    if (busy(state)) return;
     if (!authed) {
       router.push(`/login?next=/play/${track}`);
       return;
     }
     if (state.input.length !== length) {
       dispatch({ type: "submit_fail", toast: "Not enough letters", shake: true });
+      vibrate([12, 40, 12]);
       return;
     }
     dispatch({ type: "submit_start" });
@@ -167,21 +246,24 @@ export function Game({
         toast: ERROR_TOASTS[error] ?? "Something went wrong — try again",
         shake: error === "not_in_word_list" || error === "wrong_length",
       });
+      if (error === "not_in_word_list") vibrate([12, 40, 12]);
     } catch {
       dispatch({
         type: "submit_fail",
         toast: "You're offline — Mzansi Word needs data to check your guess",
       });
     }
-  }, [authed, length, router, state.input, state.status, state.submitting, track]);
+  }, [authed, length, router, state, track]);
 
   const handleKey = useCallback(
     (key: string) => {
       if (key === ENTER) {
         void submit();
       } else if (key === BACKSPACE) {
+        vibrate(6);
         dispatch({ type: "backspace" });
       } else if (/^[a-z]$/.test(key)) {
+        vibrate(6);
         dispatch({ type: "letter", letter: key, length });
       }
     },
@@ -199,10 +281,17 @@ export function Game({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [handleKey]);
 
+  const finished = state.status !== "playing" && !state.revealing;
+  // Key colours only update once the row has finished flipping.
+  const keyboardGuesses = state.revealing
+    ? state.committed.slice(0, -1)
+    : state.committed;
+
   return (
-    <div className="flex flex-1 flex-col items-center gap-4 pb-4">
-      <p className="text-sm text-zinc-500">
-        {trackName} #{puzzleNumber} · {length} letters
+    <div className="flex flex-1 flex-col items-center gap-3 pb-2">
+      <p className="text-sm font-medium text-muted">
+        {trackName} <span className="text-foreground/80">#{puzzleNumber}</span>{" "}
+        · {length} letters
       </p>
 
       <Board
@@ -211,9 +300,11 @@ export function Game({
         committed={state.committed}
         current={state.input}
         shaking={state.shaking}
+        revealRow={state.revealRow}
+        danceRow={state.danceRow}
       />
 
-      {state.status !== "playing" && (
+      {finished && (
         <ResultPanel
           won={state.status === "won"}
           track={track}
@@ -225,21 +316,25 @@ export function Game({
         />
       )}
 
-      <div className="mt-auto w-full">
-        <Keyboard
-          track={track}
-          committed={state.committed}
-          onKey={handleKey}
-          disabled={state.submitting || state.status !== "playing"}
-        />
-      </div>
+      {!finished && (
+        <div className="mt-auto w-full">
+          <Keyboard
+            track={track}
+            committed={keyboardGuesses}
+            onKey={handleKey}
+            disabled={state.submitting || state.revealing}
+          />
+        </div>
+      )}
 
       {state.toast && (
-        <div className="fixed top-16 left-1/2 z-50 -translate-x-1/2 rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
+        <div
+          role="status"
+          className="animate-toast fixed top-16 left-1/2 z-50 rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background shadow-xl"
+        >
           {state.toast}
         </div>
       )}
     </div>
   );
 }
-

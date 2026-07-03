@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getMyPrizes, getProfile } from "@/lib/game/db";
 import { SignOutButton } from "@/components/SignOutButton";
+import { FlameIcon, TrophyIcon } from "@/components/icons";
 
 export const metadata = { title: "My profile — Mzansi Word" };
 
@@ -29,34 +30,40 @@ export default async function MePage() {
   return (
     <div className="flex flex-col gap-6 pb-10">
       <section className="flex flex-col gap-1">
-        <h1 className="text-xl font-bold">
-          {profile.first_name ?? "Player"} 👋
+        <h1 className="font-display text-2xl font-bold">
+          Molo, {profile.first_name ?? "Player"}
         </h1>
-        <p className="text-sm text-zinc-500">{profile.phone}</p>
+        <p className="text-sm text-muted">{profile.phone}</p>
       </section>
 
-      <section className="flex gap-4">
-        <div className="flex-1 rounded-lg border border-zinc-200 p-3 text-center dark:border-zinc-700">
-          <p className="text-2xl font-bold">🔥 {profile.current_streak}</p>
-          <p className="text-xs text-zinc-500">Current streak</p>
+      <section className="flex gap-3">
+        <div className="flex flex-1 flex-col items-center gap-1 rounded-2xl border border-edge bg-surface p-4">
+          <FlameIcon className="h-6 w-6 animate-flame text-gold" />
+          <p className="font-display text-3xl font-bold">
+            {profile.current_streak}
+          </p>
+          <p className="text-xs text-muted">Current streak</p>
         </div>
-        <div className="flex-1 rounded-lg border border-zinc-200 p-3 text-center dark:border-zinc-700">
-          <p className="text-2xl font-bold">🏆 {profile.best_streak}</p>
-          <p className="text-xs text-zinc-500">Best streak</p>
+        <div className="flex flex-1 flex-col items-center gap-1 rounded-2xl border border-edge bg-surface p-4">
+          <TrophyIcon className="h-6 w-6 text-brand" />
+          <p className="font-display text-3xl font-bold">
+            {profile.best_streak}
+          </p>
+          <p className="text-xs text-muted">Best streak</p>
         </div>
       </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-bold">My prizes</h2>
         {prizes.length === 0 && (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted">
             Nothing yet — solve today&apos;s word to enter the draw!
           </p>
         )}
         {prizes.map((p) => {
           const row = (
             <div
-              className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700"
+              className="flex items-center justify-between rounded-lg border border-edge bg-surface px-3 py-2 text-sm"
             >
               <span className="font-medium">
                 R{(p.amount_cents / 100).toFixed(0)} airtime
@@ -64,8 +71,8 @@ export default async function MePage() {
               <span
                 className={
                   p.status === "pending_claim"
-                    ? "font-semibold text-green-600"
-                    : "text-zinc-500"
+                    ? "font-semibold text-brand"
+                    : "text-muted"
                 }
               >
                 {STATUS_LABELS[p.status] ?? p.status}
@@ -83,10 +90,10 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-2 text-sm">
-        <Link href="/winners" className="text-zinc-500 underline">
+        <Link href="/winners" className="cursor-pointer text-muted underline transition-colors hover:text-foreground">
           Winner wall
         </Link>
-        <Link href="/how-to-play" className="text-zinc-500 underline">
+        <Link href="/how-to-play" className="cursor-pointer text-muted underline transition-colors hover:text-foreground">
           How to play
         </Link>
         <SignOutButton />

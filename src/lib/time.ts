@@ -56,7 +56,7 @@ export function sastDayOfWeek(now: Date = new Date()): number {
 }
 
 /** First puzzle day; puzzle #1 is this date. */
-export const LAUNCH_DATE = "2026-07-06";
+export const LAUNCH_DATE = "2026-07-01";
 
 export function puzzleNumber(sastDate: string): number {
   return (

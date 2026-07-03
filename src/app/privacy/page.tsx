@@ -7,7 +7,7 @@ export default function Privacy() {
   return (
     <article className="flex flex-col gap-4 pb-10 text-sm leading-6">
       <h1 className="text-xl font-bold">Privacy notice (POPIA)</h1>
-      <p className="text-zinc-500">
+      <p className="text-muted">
         Responsible party: [PROMOTER NAME], [CONTACT EMAIL]. Last updated: 2
         July 2026.
       </p>

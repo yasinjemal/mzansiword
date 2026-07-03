@@ -8,7 +8,7 @@ export default function Rules() {
   return (
     <article className="flex flex-col gap-4 pb-10 text-sm leading-6">
       <h1 className="text-xl font-bold">Competition rules</h1>
-      <p className="text-zinc-500">
+      <p className="text-muted">
         Mzansi Word runs a promotional competition under section 36 of the
         Consumer Protection Act 68 of 2008. Promoter: [PROMOTER NAME],
         [CONTACT EMAIL]. Last updated: 2 July 2026.

@@ -24,14 +24,14 @@ export default async function AdminPrizes() {
   return (
     <div className="flex flex-col gap-2">
       <h1 className="font-bold">Prizes</h1>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Claimed prizes: send the airtime from the banking app, then Mark paid
         with your reference.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-zinc-300 dark:border-zinc-600">
+            <tr className="border-b border-edge">
               <th className="py-1 pr-2">Winner</th>
               <th className="py-1 pr-2">Amount</th>
               <th className="py-1 pr-2">Network / number</th>
@@ -44,11 +44,11 @@ export default async function AdminPrizes() {
             {rows.map((p) => (
               <tr
                 key={p.id}
-                className="border-b border-zinc-200 dark:border-zinc-700"
+                className="border-b border-edge"
               >
                 <td className="py-1 pr-2">
                   {p.profile?.first_name ?? "—"}{" "}
-                  <span className="text-zinc-500">{p.profile?.phone}</span>
+                  <span className="text-muted">{p.profile?.phone}</span>
                 </td>
                 <td className="py-1 pr-2">
                   R{(p.amount_cents / 100).toFixed(0)}
@@ -74,7 +74,7 @@ export default async function AdminPrizes() {
         </table>
       </div>
       {rows.length === 0 && (
-        <p className="text-sm text-zinc-500">No prizes yet.</p>
+        <p className="text-sm text-muted">No prizes yet.</p>
       )}
     </div>
   );

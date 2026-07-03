@@ -14,7 +14,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex flex-col gap-4 pb-10">
-      <nav className="flex gap-3 border-b border-zinc-200 pb-2 text-sm font-medium dark:border-zinc-700">
+      <nav className="flex gap-3 border-b border-edge pb-2 text-sm font-medium">
         <Link href="/admin/prizes" className="underline">
           Prizes
         </Link>

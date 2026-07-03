@@ -1,31 +1,34 @@
 import type { GuessEntry } from "@/lib/game/types";
 import type { Mark } from "@/lib/engine/score";
 
-const MARK_CLASSES: Record<Mark, string> = {
-  0: "bg-zinc-500 border-zinc-500 text-white",
-  1: "bg-amber-400 border-amber-400 text-white",
-  2: "bg-green-600 border-green-600 text-white",
+const MARK_CLASS: Record<Mark, string> = {
+  0: "tile-absent",
+  1: "tile-present",
+  2: "tile-correct",
 };
 
 function Tile({
   letter,
   mark,
-  delayMs,
+  col,
+  reveal,
+  dance,
 }: {
   letter: string;
   mark: Mark | null;
-  delayMs: number;
+  col: number;
+  reveal: boolean;
+  dance: boolean;
 }) {
-  const base =
-    "flex aspect-square w-full items-center justify-center rounded border-2 text-2xl font-bold uppercase transition-colors duration-500";
-  const state =
-    mark !== null
-      ? MARK_CLASSES[mark]
-      : letter
-        ? "border-zinc-400 dark:border-zinc-500"
-        : "border-zinc-200 dark:border-zinc-700";
+  let cls = "tile";
+  if (mark !== null) {
+    cls += ` ${MARK_CLASS[mark]} ${reveal ? "tile-reveal" : "tile-settled"}`;
+    if (dance) cls += " tile-dance";
+  } else if (letter) {
+    cls += " tile-filled";
+  }
   return (
-    <div className={`${base} ${state}`} style={{ transitionDelay: `${delayMs}ms` }}>
+    <div className={cls} style={{ "--col": col } as React.CSSProperties}>
       {letter}
     </div>
   );
@@ -37,12 +40,18 @@ export function Board({
   committed,
   current,
   shaking,
+  revealRow,
+  danceRow,
 }: {
   length: number;
   maxGuesses: number;
   committed: GuessEntry[];
   current: string;
   shaking: boolean;
+  /** Row index that flips in (freshly committed this session), or null. */
+  revealRow: number | null;
+  /** Row index doing the win bounce, or null. */
+  danceRow: number | null;
 }) {
   const rows = [];
   for (let r = 0; r < maxGuesses; r++) {
@@ -60,7 +69,9 @@ export function Board({
             key={c}
             letter={word[c] ?? ""}
             mark={entry ? entry.marks[c] : null}
-            delayMs={entry ? c * 120 : 0}
+            col={c}
+            reveal={r === revealRow}
+            dance={r === danceRow}
           />
         ))}
       </div>,
@@ -69,7 +80,7 @@ export function Board({
   return (
     <div
       className="mx-auto flex w-full flex-col gap-1.5"
-      style={{ maxWidth: `${length * 4}rem` }}
+      style={{ maxWidth: `${length * 4.1}rem` }}
     >
       {rows}
     </div>

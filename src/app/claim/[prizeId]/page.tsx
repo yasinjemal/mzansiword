@@ -42,7 +42,7 @@ export default async function ClaimPage({
             ? "This prize has expired 😔"
             : `R${rands} airtime — ${prize.status === "paid" ? "sent!" : "claimed ✔"}`}
         </p>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           {prize.status === "expired"
             ? "Unclaimed prizes roll into the next draw. Keep playing!"
             : prize.status === "paid"

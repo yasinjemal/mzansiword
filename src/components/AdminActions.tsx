@@ -13,7 +13,7 @@ async function post(body: unknown): Promise<boolean> {
 }
 
 const buttonClass =
-  "rounded border border-zinc-300 px-2 py-1 text-xs font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:hover:bg-zinc-800";
+  "rounded border border-edge px-2 py-1 text-xs font-medium transition-colors hover:bg-raised disabled:opacity-50";
 
 export function MarkPaidButton({ prizeId }: { prizeId: number }) {
   const router = useRouter();

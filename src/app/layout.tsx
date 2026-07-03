@@ -1,7 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { Fredoka } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { SwRegister } from "@/components/SwRegister";
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-fredoka",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Mzansi Word — SA's daily word game",
@@ -17,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16a34a",
+  themeColor: "#0b1210",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -29,24 +37,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={fredoka.variable}>
       <body className="flex min-h-dvh flex-col antialiased">
         <SwRegister />
         <Header />
-        <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-4">
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-3">
           {children}
         </main>
-        <footer className="mx-auto flex w-full max-w-md items-center justify-center gap-3 px-3 py-3 text-xs text-zinc-400">
-          <a href="/rules" className="underline">
-            Competition rules
+        <footer className="mx-auto flex w-full max-w-md items-center justify-center gap-4 px-3 py-3 text-xs text-muted">
+          <a href="/rules" className="transition-colors hover:text-foreground">
+            Rules
           </a>
-          <a href="/privacy" className="underline">
+          <a href="/privacy" className="transition-colors hover:text-foreground">
             Privacy
           </a>
-          <a href="/winners" className="underline">
+          <a href="/winners" className="transition-colors hover:text-foreground">
             Winners
           </a>
-          <a href="/me" className="underline">
+          <a href="/me" className="transition-colors hover:text-foreground">
             My profile
           </a>
         </footer>

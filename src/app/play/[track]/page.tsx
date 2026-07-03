@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Game } from "@/components/Game";
+import { GiftIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
 import {
   getPendingPrizes,
@@ -46,8 +47,8 @@ export default async function PlayPage({
   if (!puzzle) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-        <p className="text-xl font-bold">No puzzle today 😅</p>
-        <p className="text-sm text-zinc-500">
+        <p className="font-display text-xl font-bold">No puzzle today</p>
+        <p className="text-sm text-muted">
           The {TRACK_NAMES[track]} puzzle isn&apos;t scheduled yet — check back
           soon.
         </p>
@@ -74,9 +75,10 @@ export default async function PlayPage({
       {pendingPrize && (
         <Link
           href={`/claim/${pendingPrize.id}`}
-          className="mb-3 block rounded-lg bg-green-600 px-4 py-3 text-center font-semibold text-white"
+          className="animate-glow mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-center font-display font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
         >
-          🎉 You won R{(pendingPrize.amount_cents / 100).toFixed(0)} airtime —
+          <GiftIcon className="h-5 w-5" />
+          You won R{(pendingPrize.amount_cents / 100).toFixed(0)} airtime —
           tap to claim!
         </Link>
       )}

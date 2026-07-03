@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "SA's free daily word game — isiXhosa & English. Solve it and you're in the airtime draw.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#16a34a",
+    background_color: "#0b1210",
+    theme_color: "#0b1210",
     icons: [
       {
         src: "/icons/icon-192.png",

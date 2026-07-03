@@ -52,8 +52,8 @@ export function ClaimForm({
   if (done) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-        <p className="text-2xl font-bold">Claimed! 🎉</p>
-        <p className="text-sm text-zinc-500">
+        <p className="font-display text-3xl font-bold">Claimed!</p>
+        <p className="text-sm text-muted">
           Your R{rands} airtime is on its way to {phone} — your network&apos;s
           SMS will confirm when it lands.
         </p>
@@ -66,10 +66,10 @@ export function ClaimForm({
       onSubmit={submit}
       className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 pb-24"
     >
-      <h1 className="text-center text-2xl font-bold">
-        You won R{rands} airtime! 🎉
+      <h1 className="text-center font-display text-3xl font-bold">
+        You won R{rands} airtime!
       </h1>
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-muted">
         Sent to your number {phone}. Claim within {hoursLeft}h or it rolls into
         the next draw.
       </p>
@@ -79,10 +79,10 @@ export function ClaimForm({
         {NETWORKS.map((n) => (
           <label
             key={n}
-            className={`flex items-center gap-2 rounded border px-3 py-2 ${
+            className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-3 transition-colors ${
               network === n
-                ? "border-green-600 bg-green-50 dark:bg-green-950"
-                : "border-zinc-300 dark:border-zinc-600"
+                ? "border-brand bg-brand/10 font-semibold"
+                : "border-edge bg-surface hover:bg-raised"
             }`}
           >
             <input
@@ -97,7 +97,7 @@ export function ClaimForm({
         ))}
       </fieldset>
 
-      <label className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-300">
+      <label className="flex items-start gap-2 text-sm text-muted">
         <input
           type="checkbox"
           checked={consent}
@@ -113,7 +113,7 @@ export function ClaimForm({
       <button
         type="submit"
         disabled={busy}
-        className="rounded bg-green-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+        className="animate-glow cursor-pointer rounded-xl bg-brand px-4 py-3.5 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98] disabled:opacity-50"
       >
         {busy ? "Claiming…" : `Claim R${rands} airtime`}
       </button>

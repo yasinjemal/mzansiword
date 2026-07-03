@@ -101,19 +101,19 @@ function LoginForm() {
   }
 
   const inputClass =
-    "w-full rounded border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50";
+    "w-full rounded-xl border border-edge bg-surface px-4 py-3 text-base text-foreground placeholder:text-muted/60 outline-none transition-colors focus:border-brand";
   const buttonClass =
-    "w-full rounded bg-green-600 px-4 py-2 font-semibold text-white disabled:opacity-50";
+    "w-full cursor-pointer rounded-xl bg-brand px-4 py-3 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98] disabled:opacity-50";
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 pb-24">
-      <h1 className="text-center text-xl font-bold">
+    <div className="animate-rise mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 pb-24">
+      <h1 className="text-center font-display text-2xl font-bold">
         {step === "profile" ? "Almost there!" : "Sign in to play"}
       </h1>
 
       {step === "phone" && (
         <form onSubmit={sendOtp} className="flex flex-col gap-3">
-          <label className="text-sm text-zinc-600 dark:text-zinc-300">
+          <label className="text-sm text-muted">
             Your cell number — we&apos;ll send a one-time code. Free to play,
             no airtime deducted, ever.
           </label>
@@ -135,7 +135,7 @@ function LoginForm() {
 
       {step === "otp" && (
         <form onSubmit={verifyOtp} className="flex flex-col gap-3">
-          <label className="text-sm text-zinc-600 dark:text-zinc-300">
+          <label className="text-sm text-muted">
             Enter the code we sent to {phone}
           </label>
           <input
@@ -154,7 +154,7 @@ function LoginForm() {
           <button
             type="button"
             onClick={() => setStep("phone")}
-            className="text-sm text-zinc-500 underline"
+            className="cursor-pointer text-sm text-muted underline transition-colors hover:text-foreground"
           >
             Wrong number?
           </button>
@@ -163,7 +163,7 @@ function LoginForm() {
 
       {step === "profile" && (
         <form onSubmit={saveProfile} className="flex flex-col gap-3">
-          <label className="text-sm text-zinc-600 dark:text-zinc-300">
+          <label className="text-sm text-muted">
             What should we call you? (Shown if you win — e.g. “Thabo M.”)
           </label>
           <input
@@ -176,7 +176,7 @@ function LoginForm() {
             maxLength={40}
             required
           />
-          <label className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-300">
+          <label className="flex items-start gap-2 text-sm text-muted">
             <input
               type="checkbox"
               checked={consent}
@@ -199,7 +199,7 @@ function LoginForm() {
       )}
 
       {error && (
-        <p className="text-center text-sm text-red-600 dark:text-red-400">
+        <p className="text-center text-sm text-danger">
           {error}
         </p>
       )}

@@ -12,7 +12,7 @@ export default async function AdminDraws() {
   return (
     <div className="flex flex-col gap-2">
       <h1 className="font-bold">Draw audit log</h1>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Every draw is reproducible: `npm run verify-draw -- --draw &lt;id&gt;`
         re-runs it from the stored seed and entrant snapshot. Keep 3 years
         (CPA).
@@ -20,7 +20,7 @@ export default async function AdminDraws() {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-zinc-300 dark:border-zinc-600">
+            <tr className="border-b border-edge">
               <th className="py-1 pr-2">#</th>
               <th className="py-1 pr-2">Date</th>
               <th className="py-1 pr-2">Type</th>
@@ -33,7 +33,7 @@ export default async function AdminDraws() {
             {(draws ?? []).map((d) => (
               <tr
                 key={d.id}
-                className="border-b border-zinc-200 dark:border-zinc-700"
+                className="border-b border-edge"
               >
                 <td className="py-1 pr-2">{d.id}</td>
                 <td className="py-1 pr-2">{d.draw_date}</td>
@@ -47,7 +47,7 @@ export default async function AdminDraws() {
         </table>
       </div>
       {(!draws || draws.length === 0) && (
-        <p className="text-sm text-zinc-500">No draws yet.</p>
+        <p className="text-sm text-muted">No draws yet.</p>
       )}
     </div>
   );

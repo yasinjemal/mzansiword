@@ -29,14 +29,14 @@ export default async function AdminFlagged() {
   return (
     <div className="flex flex-col gap-2">
       <h1 className="font-bold">Flagged plays</h1>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Flagged solves are excluded from draws. Unflag genuine ones; ban
         repeat offenders.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-zinc-300 dark:border-zinc-600">
+            <tr className="border-b border-edge">
               <th className="py-1 pr-2">Player</th>
               <th className="py-1 pr-2">Puzzle</th>
               <th className="py-1 pr-2">Solve</th>
@@ -48,11 +48,11 @@ export default async function AdminFlagged() {
             {rows.map((p) => (
               <tr
                 key={p.id}
-                className="border-b border-zinc-200 dark:border-zinc-700"
+                className="border-b border-edge"
               >
                 <td className="py-1 pr-2">
                   {p.profile?.first_name ?? "—"}{" "}
-                  <span className="text-zinc-500">{p.profile?.phone}</span>
+                  <span className="text-muted">{p.profile?.phone}</span>
                   {p.profile?.banned && (
                     <span className="ml-1 rounded bg-red-600 px-1 text-white">
                       banned
@@ -80,7 +80,7 @@ export default async function AdminFlagged() {
         </table>
       </div>
       {rows.length === 0 && (
-        <p className="text-sm text-zinc-500">Nothing flagged. Lekker.</p>
+        <p className="text-sm text-muted">Nothing flagged. Lekker.</p>
       )}
     </div>
   );

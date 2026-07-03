@@ -1,56 +1,77 @@
 import type { Metadata } from "next";
+import { FlameIcon, GiftIcon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "How to play — Mzansi Word" };
 
-function Tile({ letter, colour }: { letter: string; colour: string }) {
+function DemoTile({ letter, state }: { letter: string; state: string }) {
   return (
-    <span
-      className={`inline-flex h-9 w-9 items-center justify-center rounded border-2 text-lg font-bold uppercase text-white ${colour}`}
-    >
-      {letter}
-    </span>
+    <span className={`tile tile-settled ${state} !w-10 !text-lg`}>{letter}</span>
+  );
+}
+
+function DemoRow({
+  word,
+  states,
+}: {
+  word: string;
+  states: string[];
+}) {
+  return (
+    <div className="flex gap-1.5">
+      {word.split("").map((letter, i) => (
+        <DemoTile key={i} letter={letter} state={states[i]} />
+      ))}
+    </div>
   );
 }
 
 export default function HowToPlay() {
   return (
-    <article className="flex flex-col gap-4 pb-10 text-sm leading-6">
-      <h1 className="text-xl font-bold">How to play</h1>
+    <article className="animate-rise flex flex-col gap-5 pb-10 text-sm leading-6">
+      <h1 className="font-display text-2xl font-bold">How to play</h1>
       <p>
-        Guess the word of the day in 6 tries. Everyone in South Africa gets
-        the same word — one puzzle per language, per day. New puzzle at
-        midnight.
+        Guess the word of the day in <strong>6 tries</strong>. Everyone in
+        South Africa gets the same word — one puzzle per language, per day.
+        New word at midnight.
       </p>
-      <ul className="list-disc space-y-1 pl-5">
+
+      <section className="flex flex-col gap-3 rounded-2xl border border-edge bg-surface p-4">
+        <DemoRow
+          word="molo"
+          states={["tile-correct", "tile-absent", "tile-absent", "tile-present"]}
+        />
+        <ul className="flex flex-col gap-1.5 text-muted">
+          <li>
+            <span className="font-semibold text-[#1fa14f]">Green</span> — right
+            letter, right spot.
+          </li>
+          <li>
+            <span className="font-semibold text-[#d9a514]">Gold</span> — in the
+            word, but in another spot.
+          </li>
+          <li>
+            <span className="font-semibold text-foreground/70">Dark</span> —
+            not in the word at all.
+          </li>
+        </ul>
+      </section>
+
+      <ul className="list-disc space-y-1.5 pl-5">
         <li>Every guess must be a real word in that language.</li>
         <li>The word is 4, 5 or 6 letters — the grid shows you how many.</li>
         <li>
           <strong>Solve it and you&apos;re in the daily airtime draw.</strong>{" "}
-          Free to play, no airtime deducted, ever. Solve both languages for two
-          entries.
+          Free to play, no airtime deducted, ever. Solve both languages for
+          two entries.
         </li>
       </ul>
 
-      <h2 className="font-bold">The colours</h2>
-      <div className="flex items-center gap-2">
-        <Tile letter="m" colour="bg-green-600 border-green-600" />
-        <span>Right letter, right spot.</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <Tile letter="o" colour="bg-amber-400 border-amber-400" />
-        <span>In the word, but in another spot.</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <Tile letter="z" colour="bg-zinc-500 border-zinc-500" />
-        <span>Not in the word.</span>
-      </div>
-
-      <h2 className="font-bold">isiXhosa notes</h2>
-      <ul className="list-disc space-y-1 pl-5">
+      <h2 className="font-display text-lg font-bold">isiXhosa notes</h2>
+      <ul className="list-disc space-y-1.5 pl-5">
         <li>
           Digraphs count as separate letters: <em>hl</em>, <em>dl</em>,{" "}
-          <em>ny</em>, <em>ng</em>, <em>th</em>, <em>ph</em>, <em>tsh</em> —
-          so <em>indlu</em> is i-n-d-l-u (5 letters).
+          <em>ny</em>, <em>ng</em>, <em>th</em>, <em>ph</em>, <em>tsh</em> — so{" "}
+          <em>indlu</em> is i-n-d-l-u (5 letters).
         </li>
         <li>
           Clicks (<em>c</em>, <em>x</em>, <em>q</em>) are single letters on the
@@ -62,15 +83,21 @@ export default function HowToPlay() {
         </li>
       </ul>
 
-      <h2 className="font-bold">Streaks & prizes</h2>
-      <ul className="list-disc space-y-1 pl-5">
-        <li>Solve at least one language a day to keep your 🔥 streak.</li>
-        <li>
-          Daily draw at 21:00: two winners get R29 airtime. Keep a 7-day streak
-          for the weekly bonus draw.
-        </li>
-        <li>Winners get a message and claim in the app — airtime lands in minutes.</li>
-      </ul>
+      <h2 className="font-display text-lg font-bold">Streaks &amp; prizes</h2>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2.5 rounded-xl bg-gold/10 px-3.5 py-2.5 font-medium text-gold">
+          <FlameIcon className="h-5 w-5 shrink-0" />
+          Solve at least one language a day to keep your streak alive.
+        </div>
+        <div className="flex items-center gap-2.5 rounded-xl bg-brand/10 px-3.5 py-2.5 font-medium text-brand">
+          <GiftIcon className="h-5 w-5 shrink-0" />
+          Daily draw at 21:00 — two winners get R29 airtime. A 7-day streak
+          enters the weekly bonus draw.
+        </div>
+      </div>
+      <p className="text-muted">
+        Winners get a message and claim in the app — airtime lands in minutes.
+      </p>
     </article>
   );
 }
