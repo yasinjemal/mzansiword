@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LIVE_TRACKS } from "@/lib/tracks";
-import { FlameIcon, HelpIcon } from "./icons";
+import { FlameIcon, HelpIcon, MapIcon } from "./icons";
 
 export function Header() {
   const pathname = usePathname();
@@ -61,6 +61,15 @@ export function Header() {
               </Link>
             );
           })}
+          <Link
+            href="/journey"
+            aria-label="Journey"
+            className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-raised hover:text-foreground ${
+              pathname.startsWith("/journey") ? "text-brand" : "text-muted"
+            }`}
+          >
+            <MapIcon className="h-5 w-5" />
+          </Link>
           <Link
             href="/how-to-play"
             aria-label="How to play"

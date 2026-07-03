@@ -294,6 +294,117 @@ body {
   animation: glow-pulse 2.4s ease-in-out infinite;
 }
 
+/* ---------------------------------------------------------- journey */
+
+.jcell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.jcell-empty {
+  background: rgba(244, 247, 245, 0.14);
+  border: 1px solid rgba(244, 247, 245, 0.12);
+}
+
+.jcell-revealed {
+  background: rgba(251, 191, 36, 0.22);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: var(--gold);
+}
+
+.jcell-filled {
+  background: var(--tile-correct);
+  border: 1px solid var(--tile-correct);
+  color: #10130f;
+}
+
+.jcell-fill-anim {
+  animation: jcell-fill 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--col) * 70ms);
+}
+
+@keyframes jcell-fill {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.3;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.wheel-letter {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin: -1.7rem;
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  user-select: none;
+  touch-action: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.wheel-letter-active {
+  background: var(--brand);
+  color: #0b1210;
+  transform: scale(1.12);
+}
+
+@keyframes bonus-burst {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-burst {
+  animation: bonus-burst 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes coin-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+    color: var(--gold);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-coin {
+  animation: coin-pop 400ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tile-reveal {
     animation-duration: 1ms;
@@ -309,5 +420,16 @@ body {
   .animate-rise,
   .animate-toast {
     animation-duration: 1ms;
+  }
+  .jcell-fill-anim {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .animate-burst,
+  .animate-coin {
+    animation: none;
+  }
+  .wheel-letter {
+    transition: none;
   }
 }
