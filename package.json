@@ -10,7 +10,8 @@
     "test": "vitest run",
     "import-wordlists": "tsx scripts/import-wordlists.ts",
     "schedule-puzzles": "tsx scripts/schedule-puzzles.ts",
-    "verify-draw": "tsx scripts/verify-draw.ts"
+    "verify-draw": "tsx scripts/verify-draw.ts",
+    "generate-journey": "tsx scripts/generate-journey.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

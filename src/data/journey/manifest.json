@@ -1,0 +1,42 @@
+{
+  "tracks": {
+    "en": {
+      "chapters": [
+        {
+          "index": 1,
+          "levelCount": 12
+        },
+        {
+          "index": 2,
+          "levelCount": 12
+        },
+        {
+          "index": 3,
+          "levelCount": 12
+        },
+        {
+          "index": 4,
+          "levelCount": 12
+        },
+        {
+          "index": 5,
+          "levelCount": 12
+        }
+      ],
+      "totalLevels": 60
+    },
+    "xh": {
+      "chapters": [
+        {
+          "index": 1,
+          "levelCount": 7
+        },
+        {
+          "index": 2,
+          "levelCount": 8
+        }
+      ],
+      "totalLevels": 15
+    }
+  }
+}
