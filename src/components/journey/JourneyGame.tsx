@@ -365,11 +365,11 @@ function LevelPlay({
 
         <div className="flex h-9 items-center justify-center">
           {toast ? (
-            <span className="animate-rise rounded-full bg-raised px-4 py-1.5 text-sm font-semibold text-gold">
+            <span className="chip-glass animate-rise rounded-full px-4 py-1.5 text-sm font-semibold text-gold">
               {toast}
             </span>
           ) : selectionWord ? (
-            <span className="rounded-full bg-brand px-5 py-1.5 font-display text-lg font-semibold tracking-wider text-[#0b1210]">
+            <span className="btn-gold rounded-full px-5 py-1.5 font-display text-lg font-bold tracking-wider">
               {selectionWord}
             </span>
           ) : (
@@ -385,7 +385,7 @@ function LevelPlay({
             <button
               type="button"
               onClick={randomHint}
-              className="flex cursor-pointer items-center gap-1.5 rounded-full bg-raised px-3.5 py-2 text-sm font-semibold text-gold transition-transform active:scale-95"
+              className="chip-glass flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold transition-transform active:scale-95"
             >
               <BulbIcon className="h-4 w-4" />
               {HINT_COST}
@@ -394,7 +394,7 @@ function LevelPlay({
               type="button"
               onClick={() => setTargetMode((t) => !t)}
               className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-transform active:scale-95 ${
-                targetMode ? "bg-gold text-[#0b1210]" : "bg-raised text-gold"
+                targetMode ? "btn-gold" : "chip-glass text-gold"
               }`}
             >
               <TargetIcon className="h-4 w-4" />
@@ -464,8 +464,10 @@ function CompleteCard({
 }) {
   const chapterDone = state.status === "chapter_done";
   return (
-    <div className="animate-rise w-full max-w-sm rounded-2xl border border-edge bg-surface/95 p-5 text-center shadow-2xl shadow-black/50">
-      <p className="font-display text-2xl font-bold">
+    <div className="animate-rise relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-surface/95 p-5 pt-6 text-center shadow-2xl shadow-black/60">
+      <div className="pattern-band absolute inset-x-0 top-0" />
+      <div className="sunburst pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 -translate-y-1/3" />
+      <p className="relative font-display text-2xl font-extrabold tracking-tight">
         {chapterDone ? (
           <>
             <span style={{ color: accent }}>{chapterName}</span> complete!
@@ -474,19 +476,24 @@ function CompleteCard({
           "Level cleared!"
         )}
       </p>
-      <p className="mt-1 text-sm text-muted">
-        +{state.coinsEarned} coins
-        {state.foundBonus.length > 0 &&
-          ` · ${state.foundBonus.length} bonus ${
-            state.foundBonus.length === 1 ? "word" : "words"
-          }`}
+      <p className="relative mt-1 text-sm font-semibold">
+        <span className="text-gold-grad font-display text-lg font-bold">
+          +{state.coinsEarned} coins
+        </span>
+        {state.foundBonus.length > 0 && (
+          <span className="text-muted">
+            {" "}
+            · {state.foundBonus.length} bonus{" "}
+            {state.foundBonus.length === 1 ? "word" : "words"}
+          </span>
+        )}
       </p>
-      <div className="mt-4 flex flex-col gap-2">
+      <div className="relative mt-4 flex flex-col gap-2">
         {onNextChapter ? (
           <button
             type="button"
             onClick={onNextChapter}
-            className="animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
+            className="btn-primary animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 font-display text-lg font-bold"
           >
             Next chapter <ArrowRightIcon className="h-5 w-5" />
           </button>
@@ -494,7 +501,7 @@ function CompleteCard({
           <button
             type="button"
             onClick={onNextLevel}
-            className="animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
+            className="btn-primary animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 font-display text-lg font-bold"
           >
             Next level <ArrowRightIcon className="h-5 w-5" />
           </button>

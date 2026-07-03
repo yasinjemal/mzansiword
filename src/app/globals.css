@@ -1,28 +1,48 @@
 @import "tailwindcss";
 
-/* Mzansi Word — dark-first game theme.
-   Tokens are plain CSS vars; Tailwind v4 reads them via @theme inline. */
+/* ============================================================
+   Mzansi Word — "Highveld Dusk" design system.
+
+   A warm South African night: plum-charcoal sky with a gold
+   sunrise glow, SA-flag gold (#FFB612) and deep protea green as
+   the two voices — green means "correct / go", gold means
+   "active / reward". A pennant bunting band (shweshwe-trim
+   inspired) is the signature identity element; film grain keeps
+   surfaces from feeling flat. Tokens are plain CSS vars;
+   Tailwind v4 reads them via @theme inline.
+   ============================================================ */
 :root {
-  --background: #0b1210;
-  --surface: #131c18;
-  --surface-raised: #1a2620;
-  --border-soft: #263831;
-  --foreground: #f4f7f5;
-  --muted: #93a89d;
+  --background: #120f17;
+  --surface: #1b1723;
+  --surface-raised: #262032;
+  --border-soft: #373046;
+  --foreground: #f7f3ea;
+  --muted: #a89fb5;
+  --ink: #181206; /* dark text on bright gold/green surfaces */
 
-  --brand: #22c55e;
-  --brand-deep: #15803d;
-  --gold: #fbbf24;
-  --danger: #f87171;
+  --brand: #14b566;
+  --brand-bright: #2bd684;
+  --brand-deep: #0a7a48;
+  --gold: #ffb612;
+  --gold-bright: #ffd45c;
+  --gold-deep: #dd9500;
+  --terracotta: #e2725b;
+  --skyline: #62c6ff;
+  --danger: #ff7a66;
 
-  --tile-absent: #2b3a33;
-  --tile-present: #d9a514;
-  --tile-correct: #1fa14f;
-  --tile-border: #34493f;
-  --tile-border-filled: #56705f;
+  /* letter tiles: --tile-hi → --tile-final vertical gradient */
+  --tile-absent: #2c2637;
+  --tile-absent-hi: #362f44;
+  --tile-present: #e79b00;
+  --tile-present-hi: #ffc93d;
+  --tile-correct: #0f9d57;
+  --tile-correct-hi: #2ecc7d;
+  --tile-border: #373046;
+  --tile-border-filled: #59506e;
 
-  --key-bg: #33453c;
-  --key-fg: #eef3ef;
+  --key-hi: #3b3350;
+  --key-lo: #2f2940;
+  --key-fg: #f2edf9;
 }
 
 @theme inline {
@@ -32,17 +52,24 @@
   --color-edge: var(--border-soft);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-ink: var(--ink);
   --color-brand: var(--brand);
+  --color-brand-bright: var(--brand-bright);
   --color-brand-deep: var(--brand-deep);
   --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-terracotta: var(--terracotta);
+  --color-skyline: var(--skyline);
   --color-danger: var(--danger);
-  --font-display: var(--font-fredoka), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-fredoka), system-ui, sans-serif;
+  --font-game: var(--font-fredoka), system-ui, sans-serif;
 }
 
 body {
   background:
-    radial-gradient(60rem 40rem at 50% -20%, rgba(34, 197, 94, 0.13), transparent 60%),
-    radial-gradient(40rem 30rem at 110% 110%, rgba(251, 191, 36, 0.05), transparent 60%),
+    radial-gradient(54rem 38rem at 50% -14%, rgba(255, 182, 18, 0.09), transparent 62%),
+    radial-gradient(42rem 30rem at -12% 112%, rgba(20, 181, 102, 0.07), transparent 60%),
+    radial-gradient(36rem 26rem at 112% 108%, rgba(226, 114, 91, 0.05), transparent 60%),
     var(--background);
   color: var(--foreground);
   font-family:
@@ -55,6 +82,119 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* film grain over everything — texture, not noise */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:where(a, button, [role="button"]):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* ------------------------------------------------- identity elements */
+
+/* Pennant bunting — the signature trim. Use sparingly: hero, header
+   hairline, celebration cards. */
+.pattern-band {
+  height: 7px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='8' viewBox='0 0 56 8'%3E%3Cpath d='M0 0h14L7 8Z' fill='%23ffb612'/%3E%3Cpath d='M14 0h14l-7 8Z' fill='%23e2725b'/%3E%3Cpath d='M28 0h14l-7 8Z' fill='%2314b566'/%3E%3Cpath d='M42 0h14l-7 8Z' fill='%2362c6ff'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+.hairline-trim {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 182, 18, 0.55) 20%,
+    rgba(226, 114, 91, 0.45) 40%,
+    rgba(20, 181, 102, 0.5) 60%,
+    rgba(98, 198, 255, 0.4) 80%,
+    transparent
+  );
+}
+
+.text-gold-grad {
+  background: linear-gradient(115deg, var(--gold-bright) 10%, var(--gold) 45%, var(--gold-deep) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* slow-turning sunrays behind celebration moments */
+.sunburst {
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(255, 182, 18, 0.1) 0deg 9deg,
+    transparent 9deg 26deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, black 15%, transparent 72%);
+  mask-image: radial-gradient(closest-side, black 15%, transparent 72%);
+  animation: spin-slow 48s linear infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------- buttons & chips */
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--brand-bright) 0%, var(--brand) 55%, var(--brand-deep) 130%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 10px 26px -10px rgba(20, 181, 102, 0.6);
+  transition: transform 120ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+.btn-primary:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 14px -8px rgba(20, 181, 102, 0.6);
+}
+
+.btn-gold {
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 55%, var(--gold-deep) 130%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 26px -10px rgba(255, 182, 18, 0.55);
+  transition: transform 120ms ease, filter 200ms ease;
+}
+.btn-gold:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.chip-glass {
+  background: rgba(38, 32, 50, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.coin-chip {
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 60%, var(--gold-deep) 140%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 3px 10px -3px rgba(255, 182, 18, 0.5);
+}
+
 /* ---------------------------------------------------------- tile states */
 
 .tile {
@@ -63,9 +203,10 @@ body {
   justify-content: center;
   aspect-ratio: 1;
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: 0.55rem;
   border: 2px solid var(--tile-border);
-  font-family: var(--font-fredoka), system-ui, sans-serif;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-game);
   font-size: 1.65rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -80,22 +221,35 @@ body {
 
 .tile-absent {
   --tile-final: var(--tile-absent);
+  --tile-hi: var(--tile-absent-hi);
+  --tile-glow: transparent;
 }
 .tile-present {
   --tile-final: var(--tile-present);
+  --tile-hi: var(--tile-present-hi);
+  --tile-glow: rgba(255, 182, 18, 0.35);
 }
 .tile-correct {
   --tile-final: var(--tile-correct);
+  --tile-hi: var(--tile-correct-hi);
+  --tile-glow: rgba(46, 204, 125, 0.4);
 }
 
 /* Committed rows from a previous session: final colors, no animation. */
 .tile-settled {
-  background: var(--tile-final);
-  border-color: var(--tile-final);
+  background: linear-gradient(180deg, var(--tile-hi) 0%, var(--tile-final) 100%);
+  border-color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 2px 8px -2px rgba(0, 0, 0, 0.45),
+    0 0 14px -3px var(--tile-glow);
 }
 .tile-present.tile-settled,
 .tile-correct.tile-settled {
-  color: #10130f;
+  color: var(--ink);
+}
+.tile-absent.tile-settled {
+  color: var(--muted);
 }
 
 /* Fresh commit: 3D flip revealing the color at the midpoint. */
@@ -118,19 +272,30 @@ body {
   }
   51% {
     transform: rotateX(90deg);
-    background: var(--tile-final);
-    border-color: var(--tile-final);
+    background: linear-gradient(180deg, var(--tile-hi) 0%, var(--tile-final) 100%);
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 2px 8px -2px rgba(0, 0, 0, 0.45),
+      0 0 14px -3px var(--tile-glow);
   }
   100% {
     transform: rotateX(0);
-    background: var(--tile-final);
-    border-color: var(--tile-final);
+    background: linear-gradient(180deg, var(--tile-hi) 0%, var(--tile-final) 100%);
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 2px 8px -2px rgba(0, 0, 0, 0.45),
+      0 0 14px -3px var(--tile-glow);
   }
 }
 
 .tile-reveal.tile-present,
 .tile-reveal.tile-correct {
-  color: #10130f;
+  color: var(--ink);
+}
+.tile-reveal.tile-absent {
+  color: var(--muted);
 }
 
 @keyframes tile-pop {
@@ -198,8 +363,8 @@ body {
   align-items: center;
   justify-content: center;
   height: 3.5rem;
-  border-radius: 0.5rem;
-  background: var(--key-bg);
+  border-radius: 0.55rem;
+  background: linear-gradient(180deg, var(--key-hi) 0%, var(--key-lo) 100%);
   color: var(--key-fg);
   font-weight: 700;
   font-size: 1rem;
@@ -207,7 +372,9 @@ body {
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 0 rgba(0, 0, 0, 0.45);
   transition:
     background-color 180ms ease,
     color 180ms ease,
@@ -216,21 +383,29 @@ body {
 
 .key:active {
   transform: translateY(1px) scale(0.96);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
 .key-absent {
-  background: #202b25;
-  color: #64756c;
+  background: #1f1a29;
+  color: #6b6180;
   box-shadow: none;
 }
 .key-present {
-  background: var(--tile-present);
-  color: #10130f;
+  background: linear-gradient(180deg, var(--tile-present-hi) 0%, var(--tile-present) 100%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 0 rgba(122, 79, 0, 0.55);
 }
 .key-correct {
-  background: var(--tile-correct);
-  color: #10130f;
+  background: linear-gradient(180deg, var(--tile-correct-hi) 0%, var(--tile-correct) 100%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 0 rgba(6, 74, 41, 0.6);
 }
 
 /* ---------------------------------------------------------- flourishes */
@@ -283,15 +458,38 @@ body {
 @keyframes glow-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 10px 26px -10px rgba(20, 181, 102, 0.6);
   }
   50% {
-    box-shadow: 0 0 24px 2px rgba(34, 197, 94, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 28px 2px rgba(43, 214, 132, 0.38);
   }
 }
 
 .animate-glow {
   animation: glow-pulse 2.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------- stats */
+
+.stat-bar {
+  width: var(--bar-width);
+  animation: bar-grow 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--bar-delay, 0ms);
+}
+
+@keyframes bar-grow {
+  from {
+    width: 0%;
+    opacity: 0.4;
+  }
+  to {
+    width: var(--bar-width);
+    opacity: 1;
+  }
 }
 
 /* ---------------------------------------------------------- journey */
@@ -300,28 +498,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.375rem;
-  font-family: var(--font-fredoka), system-ui, sans-serif;
+  border-radius: 0.4rem;
+  font-family: var(--font-game);
   font-weight: 600;
   text-transform: uppercase;
   user-select: none;
 }
 
 .jcell-empty {
-  background: rgba(244, 247, 245, 0.14);
-  border: 1px solid rgba(244, 247, 245, 0.12);
+  background: rgba(247, 243, 234, 0.12);
+  border: 1px solid rgba(247, 243, 234, 0.14);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(2px);
 }
 
 .jcell-revealed {
-  background: rgba(251, 191, 36, 0.22);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  color: var(--gold);
+  background: rgba(255, 182, 18, 0.2);
+  border: 1px solid rgba(255, 182, 18, 0.55);
+  box-shadow: 0 0 10px -2px rgba(255, 182, 18, 0.4);
+  color: var(--gold-bright);
 }
 
 .jcell-filled {
-  background: var(--tile-correct);
-  border: 1px solid var(--tile-correct);
-  color: #10130f;
+  background: linear-gradient(180deg, var(--tile-correct-hi) 0%, var(--tile-correct) 100%);
+  border: 1px solid transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
 }
 
 .jcell-fill-anim {
@@ -352,9 +556,13 @@ body {
   height: 3.4rem;
   margin: -1.7rem;
   border-radius: 9999px;
-  background: var(--surface-raised);
+  background: linear-gradient(180deg, #322b42 0%, #241f31 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 4px 12px -3px rgba(0, 0, 0, 0.55);
   color: var(--foreground);
-  font-family: var(--font-fredoka), system-ui, sans-serif;
+  font-family: var(--font-game);
   font-size: 1.5rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -363,13 +571,18 @@ body {
   transition:
     background-color 120ms ease,
     color 120ms ease,
-    transform 120ms ease;
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .wheel-letter-active {
-  background: var(--brand);
-  color: #0b1210;
-  transform: scale(1.12);
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 60%, var(--gold-deep) 140%);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--ink);
+  transform: scale(1.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(255, 182, 18, 0.55);
 }
 
 @keyframes bonus-burst {
@@ -394,7 +607,6 @@ body {
   }
   45% {
     transform: scale(1.25);
-    color: var(--gold);
   }
   100% {
     transform: scale(1);
@@ -414,7 +626,8 @@ body {
   .tile-filled,
   .animate-shake,
   .animate-flame,
-  .animate-glow {
+  .animate-glow,
+  .sunburst {
     animation: none;
   }
   .animate-rise,
@@ -431,5 +644,9 @@ body {
   }
   .wheel-letter {
     transition: none;
+  }
+  .stat-bar {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
   }
 }

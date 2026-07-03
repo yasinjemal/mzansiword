@@ -113,7 +113,7 @@ export function ClaimForm({
       <button
         type="submit"
         disabled={busy}
-        className="animate-glow cursor-pointer rounded-xl bg-brand px-4 py-3.5 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98] disabled:opacity-50"
+        className="btn-primary animate-glow cursor-pointer rounded-xl px-4 py-3.5 font-display text-lg font-bold disabled:opacity-50"
       >
         {busy ? "Claiming…" : `Claim R${rands} airtime`}
       </button>

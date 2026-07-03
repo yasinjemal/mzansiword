@@ -75,7 +75,7 @@ export default async function PlayPage({
       {pendingPrize && (
         <Link
           href={`/claim/${pendingPrize.id}`}
-          className="animate-glow mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-center font-display font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
+          className="btn-gold animate-glow mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-center font-display font-bold"
         >
           <GiftIcon className="h-5 w-5" />
           You won R{(pendingPrize.amount_cents / 100).toFixed(0)} airtime —

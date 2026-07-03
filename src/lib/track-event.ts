@@ -7,6 +7,7 @@ export type EventName =
   | "daily_fail"
   | "share_click"
   | "login"
+  | "guest_login"
   | "journey_level_start"
   | "journey_level_complete"
   | "journey_chapter_complete"

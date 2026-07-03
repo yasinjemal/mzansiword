@@ -1,13 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Fredoka } from "next/font/google";
+import { Bricolage_Grotesque, Fredoka } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { SwRegister } from "@/components/SwRegister";
 
+// Fredoka: the "game pieces" voice (tiles, wheel letters).
+// Bricolage Grotesque: the display voice (wordmark, headings, buttons).
 const fredoka = Fredoka({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-fredoka",
+  display: "swap",
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
   display: "swap",
 });
 
@@ -25,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1210",
+  themeColor: "#120f17",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -37,13 +45,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={fredoka.variable}>
+    <html lang="en" className={`${fredoka.variable} ${bricolage.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <SwRegister />
         <Header />
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-3">
           {children}
         </main>
+        <div className="hairline-trim mx-auto w-full max-w-md opacity-60" />
         <footer className="mx-auto flex w-full max-w-md items-center justify-center gap-4 px-3 py-3 text-xs text-muted">
           <a href="/rules" className="transition-colors hover:text-foreground">
             Rules

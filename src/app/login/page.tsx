@@ -48,6 +48,39 @@ function LoginForm() {
     setStep("otp");
   }
 
+  async function guestLogin() {
+    setError(null);
+    setBusy(true);
+    try {
+      // 1. Server creates a guest user + profile and returns credentials.
+      const res = await fetch("/api/profile/guest", { method: "POST" });
+      if (!res.ok) {
+        setBusy(false);
+        setError("Guest login failed — please try again.");
+        return;
+      }
+      const { email, password } = await res.json();
+
+      // 2. Sign in on the client to establish the session cookie.
+      const supabase = createClient();
+      const { error: err } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setBusy(false);
+      if (err) {
+        setError("Guest login failed — please try again.");
+        return;
+      }
+      trackEvent("guest_login");
+      router.push(next);
+      router.refresh();
+    } catch {
+      setBusy(false);
+      setError("Guest login failed — please try again.");
+    }
+  }
+
   async function verifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -105,7 +138,7 @@ function LoginForm() {
   const inputClass =
     "w-full rounded-xl border border-edge bg-surface px-4 py-3 text-base text-foreground placeholder:text-muted/60 outline-none transition-colors focus:border-brand";
   const buttonClass =
-    "w-full cursor-pointer rounded-xl bg-brand px-4 py-3 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98] disabled:opacity-50";
+    "btn-primary w-full cursor-pointer rounded-xl px-4 py-3 font-display text-lg font-bold disabled:opacity-50";
 
   return (
     <div className="animate-rise mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 pb-24">
@@ -114,25 +147,40 @@ function LoginForm() {
       </h1>
 
       {step === "phone" && (
-        <form onSubmit={sendOtp} className="flex flex-col gap-3">
-          <label className="text-sm text-muted">
-            Your cell number — we&apos;ll send a one-time code. Free to play,
-            no airtime deducted, ever.
-          </label>
-          <input
-            type="tel"
-            autoComplete="tel"
-            inputMode="tel"
-            placeholder="073 123 4567"
-            value={phoneInput}
-            onChange={(e) => setPhoneInput(e.target.value)}
-            className={inputClass}
-            required
-          />
-          <button type="submit" disabled={busy} className={buttonClass}>
-            {busy ? "Sending…" : "Send code"}
+        <>
+          <form onSubmit={sendOtp} className="flex flex-col gap-3">
+            <label className="text-sm text-muted">
+              Your cell number — we&apos;ll send a one-time code. Free to play,
+              no airtime deducted, ever.
+            </label>
+            <input
+              type="tel"
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder="073 123 4567"
+              value={phoneInput}
+              onChange={(e) => setPhoneInput(e.target.value)}
+              className={inputClass}
+              required
+            />
+            <button type="submit" disabled={busy} className={buttonClass}>
+              {busy ? "Sending…" : "Send code"}
+            </button>
+          </form>
+          <div className="flex items-center gap-3 text-xs text-muted">
+            <div className="h-px flex-1 bg-edge" />
+            or
+            <div className="h-px flex-1 bg-edge" />
+          </div>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={guestLogin}
+            className="w-full cursor-pointer rounded-xl border border-edge bg-surface px-4 py-3 font-display text-base font-semibold text-foreground transition-all hover:bg-raised active:scale-[0.98] disabled:opacity-50"
+          >
+            {busy ? "Setting up…" : "Play as Guest"}
           </button>
-        </form>
+        </>
       )}
 
       {step === "otp" && (

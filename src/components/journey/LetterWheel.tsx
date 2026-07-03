@@ -101,9 +101,22 @@ export function LetterWheel({
     .map((wi) => positions[displayOf(wi)])
     .filter(Boolean);
 
+  const tracePath = [
+    ...tracePoints.map((p) => `${p.x},${p.y}`),
+    ...(tracing && pointer ? [`${pointer.x},${pointer.y}`] : []),
+  ].join(" ");
+
   return (
     <div className="relative mx-auto" style={{ width: SIZE, height: SIZE }}>
-      <div className="absolute inset-3 rounded-full bg-surface/70 shadow-2xl shadow-black/40 backdrop-blur-sm" />
+      <div
+        className="absolute inset-3 rounded-full border border-white/[0.07] shadow-2xl shadow-black/50 backdrop-blur-sm"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 32%, rgba(255,255,255,0.05) 0%, rgba(27,23,35,0.78) 62%, rgba(20,16,26,0.85) 100%)",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -18px 40px rgba(0,0,0,0.35), 0 24px 48px -20px rgba(0,0,0,0.7)",
+        }}
+      />
 
       <div
         ref={containerRef}
@@ -120,19 +133,34 @@ export function LetterWheel({
           height={SIZE}
           aria-hidden
         >
+          <defs>
+            <linearGradient id="trace-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--gold-bright)" />
+              <stop offset="100%" stopColor="var(--gold-deep)" />
+            </linearGradient>
+          </defs>
           {tracePoints.length > 0 && (
-            <polyline
-              points={[
-                ...tracePoints.map((p) => `${p.x},${p.y}`),
-                ...(tracing && pointer ? [`${pointer.x},${pointer.y}`] : []),
-              ].join(" ")}
-              fill="none"
-              stroke="var(--brand)"
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.8"
-            />
+            <>
+              {/* soft glow under the golden thread */}
+              <polyline
+                points={tracePath}
+                fill="none"
+                stroke="var(--gold)"
+                strokeWidth="14"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.28"
+              />
+              <polyline
+                points={tracePath}
+                fill="none"
+                stroke="url(#trace-gold)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.95"
+              />
+            </>
           )}
         </svg>
 

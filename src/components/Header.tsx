@@ -33,22 +33,22 @@ export function Header() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-edge bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-md items-center justify-between px-3 py-2.5">
         <Link
           href="/"
-          className="font-display text-xl font-bold tracking-tight"
+          className="font-display text-xl font-extrabold tracking-tight"
         >
-          Mzansi<span className="text-brand">Word</span>
+          Mzansi<span className="text-gold-grad">Word</span>
         </Link>
         <nav className="flex items-center gap-1.5">
           {streak !== null && (
             <Link
               href="/me"
               aria-label={`${streak}-day streak`}
-              className="mr-0.5 flex items-center gap-1 rounded-full bg-raised px-2.5 py-1 text-sm font-bold text-gold"
+              className="coin-chip mr-0.5 flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-bold"
             >
-              <FlameIcon className="h-4 w-4 animate-flame" />
+              <FlameIcon className="h-4 w-4 animate-flame text-terracotta" />
               {streak}
             </Link>
           )}
@@ -60,7 +60,7 @@ export function Header() {
                 href={`/play/${code}`}
                 className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
                   active
-                    ? "bg-brand text-[#0b1210]"
+                    ? "btn-primary"
                     : "text-muted hover:bg-raised hover:text-foreground"
                 }`}
               >
@@ -102,6 +102,7 @@ export function Header() {
           </Link>
         </nav>
       </div>
+      <div className="hairline-trim" />
     </header>
   );
 }

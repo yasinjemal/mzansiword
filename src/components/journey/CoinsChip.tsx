@@ -18,7 +18,7 @@ export function CoinsChip({ coins }: { coins: number }) {
 
   return (
     <span
-      className={`flex items-center gap-1.5 rounded-full bg-raised px-3 py-1 text-sm font-bold text-gold ${
+      className={`coin-chip flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${
         bump ? "animate-coin" : ""
       }`}
     >

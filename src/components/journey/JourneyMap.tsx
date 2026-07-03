@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CoinsChip } from "./CoinsChip";
+import { ChapterScene } from "./ChapterScene";
 import { ArrowRightIcon, LockIcon } from "../icons";
 import { chapterTheme } from "@/lib/journey/chapters";
 import { loadLocal, syncWithServer, trackProgress } from "@/lib/journey/progress";
@@ -72,47 +73,49 @@ export function JourneyMap({
         href={unlocked ? `/journey/${track}/${Math.max(start, Math.min(levelsCompleted + 1, end))}` : "#"}
         aria-disabled={!unlocked}
         onClick={unlocked ? undefined : (e) => e.preventDefault()}
-        className={`relative overflow-hidden rounded-2xl border p-4 transition-transform ${
-          unlocked
-            ? "cursor-pointer border-edge active:scale-[0.99]"
-            : "cursor-not-allowed border-edge/50 opacity-60"
-        } ${active ? "animate-glow" : ""}`}
-        style={{
-          background: `linear-gradient(135deg, ${theme.palette.skyTop} 0%, ${theme.palette.skyBottom} 100%)`,
-        }}
+        className={`relative overflow-hidden rounded-2xl border border-white/10 shadow-lg shadow-black/30 transition-transform ${
+          unlocked ? "cursor-pointer active:scale-[0.99]" : "cursor-not-allowed"
+        }`}
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-display text-lg font-bold">{theme.name}</p>
-            <p className="text-xs text-white/70">{theme.blurb}</p>
-            {theme.sponsor && (
-              <p className="mt-1 text-[0.65rem] uppercase tracking-wide text-white/60">
-                In partnership with {theme.sponsor.name}
-              </p>
+        <div className={unlocked ? "" : "opacity-45 grayscale"}>
+          <ChapterScene theme={theme} />
+        </div>
+        {active && <div className="pattern-band absolute inset-x-0 top-0 z-10" />}
+        <div className="relative z-10 px-4 pb-4 pt-6">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="font-display text-lg font-bold">{theme.name}</p>
+              <p className="text-xs text-white/75">{theme.blurb}</p>
+              {theme.sponsor && (
+                <p className="mt-1 text-[0.65rem] uppercase tracking-wide text-white/60">
+                  In partnership with {theme.sponsor.name}
+                </p>
+              )}
+            </div>
+            {unlocked ? (
+              <div className="text-right">
+                <p
+                  className="font-display text-xl font-bold"
+                  style={{ color: theme.palette.accent }}
+                >
+                  {completedHere}/{ch.levelCount}
+                </p>
+                <p className="text-[0.65rem] text-white/60">levels</p>
+              </div>
+            ) : (
+              <LockIcon className="h-6 w-6 text-white/60" />
             )}
           </div>
-          {unlocked ? (
-            <div className="text-right">
-              <p
-                className="font-display text-xl font-bold"
-                style={{ color: theme.palette.accent }}
-              >
-                {completedHere}/{ch.levelCount}
-              </p>
-              <p className="text-[0.65rem] text-white/60">levels</p>
-            </div>
-          ) : (
-            <LockIcon className="h-6 w-6 text-white/60" />
-          )}
-        </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/30">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{
-              width: `${(completedHere / ch.levelCount) * 100}%`,
-              background: theme.palette.accent,
-            }}
-          />
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${(completedHere / ch.levelCount) * 100}%`,
+                background: `linear-gradient(90deg, ${theme.palette.accent}, var(--gold-bright))`,
+                boxShadow: `0 0 8px ${theme.palette.accent}99`,
+              }}
+            />
+          </div>
         </div>
       </Link>
     );
@@ -121,7 +124,7 @@ export function JourneyMap({
   return (
     <div className="animate-rise flex flex-col gap-4 pb-10">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold">Journey</h1>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight">Journey</h1>
         <CoinsChip coins={coins} />
       </div>
 
@@ -132,8 +135,8 @@ export function JourneyMap({
             href={`/journey/${code}`}
             className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
               code === track
-                ? "bg-brand text-[#0b1210]"
-                : "bg-raised text-muted hover:text-foreground"
+                ? "btn-primary"
+                : "chip-glass text-muted hover:text-foreground"
             }`}
           >
             {name}
@@ -144,7 +147,7 @@ export function JourneyMap({
       {!allDone ? (
         <Link
           href={`/journey/${track}/${nextLevel}`}
-          className="animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
+          className="btn-primary animate-glow flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 font-display text-lg font-bold"
         >
           {levelsCompleted === 0 ? "Start the journey" : `Continue — Level ${nextLevel}`}
           <ArrowRightIcon className="h-5 w-5" />
