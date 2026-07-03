@@ -4,11 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LIVE_TRACKS } from "@/lib/tracks";
-import { FlameIcon, HelpIcon, MapIcon } from "./icons";
+import { isMuted, setMuted } from "@/lib/sound";
+import { FlameIcon, HelpIcon, MapIcon, SpeakerIcon, SpeakerOffIcon } from "./icons";
 
 export function Header() {
   const pathname = usePathname();
   const [streak, setStreak] = useState<number | null>(null);
+  const [muted, setMutedState] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMutedState(isMuted());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +77,22 @@ export function Header() {
           >
             <MapIcon className="h-5 w-5" />
           </Link>
+          <button
+            type="button"
+            aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+            onClick={() => {
+              const next = !muted;
+              setMuted(next);
+              setMutedState(next);
+            }}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted transition-colors hover:bg-raised hover:text-foreground"
+          >
+            {muted ? (
+              <SpeakerOffIcon className="h-4.5 w-4.5" />
+            ) : (
+              <SpeakerIcon className="h-4.5 w-4.5" />
+            )}
+          </button>
           <Link
             href="/how-to-play"
             aria-label="How to play"

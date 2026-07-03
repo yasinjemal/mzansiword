@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { deviceFingerprint } from "@/lib/fingerprint";
 import { normalizeSaPhone } from "@/lib/phone";
+import { trackEvent } from "@/lib/track-event";
 
 type Step = "phone" | "otp" | "profile";
 
@@ -62,6 +63,7 @@ function LoginForm() {
       setError("That code didn't work — check it and try again.");
       return;
     }
+    trackEvent("login");
     const me = await fetch("/api/profile/me").then((r) =>
       r.ok ? r.json() : null,
     );

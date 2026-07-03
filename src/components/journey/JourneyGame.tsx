@@ -29,6 +29,8 @@ import {
   emptyTrackProgress,
 } from "@/lib/journey/progress";
 import { fireConfetti, vibrate } from "@/lib/celebrate";
+import { sfx } from "@/lib/sound";
+import { trackEvent } from "@/lib/track-event";
 import type { ChapterTheme, JourneyLevel } from "@/lib/journey/types";
 
 const FEEDBACK_LABEL: Record<string, (word: string) => string> = {
@@ -207,16 +209,29 @@ function LevelPlay({
   const [toast, setToast] = useState<string | null>(null);
   const done = state.status !== "playing";
 
+  useEffect(() => {
+    trackEvent("journey_level_start", track, { level: level.id });
+  }, [level.id, track]);
+
   // feedback -> transient toast + haptics
   useEffect(() => {
     if (!state.feedback) return;
     const { kind, word } = state.feedback;
     if (kind === "grid") {
       vibrate([10, 40, 20]);
+      sfx.correct();
       return;
     }
-    if (kind === "bonus") vibrate([10, 30, 10]);
-    if (kind === "invalid") vibrate([12, 40, 12]);
+    if (kind === "bonus") {
+      vibrate([10, 30, 10]);
+      sfx.bonus();
+      sfx.coin();
+      trackEvent("journey_bonus_word", track, { level: level.id });
+    }
+    if (kind === "invalid") {
+      vibrate([12, 40, 12]);
+      sfx.invalid();
+    }
     // reducer feedback -> transient toast; cleared by the timeout below
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToast(FEEDBACK_LABEL[kind]?.(word) ?? null);
@@ -225,13 +240,26 @@ function LevelPlay({
       dispatch({ type: "clear_feedback" });
     }, 1400);
     return () => clearTimeout(t);
-  }, [state.feedback]);
+  }, [state.feedback, level.id, track]);
 
   // completion side-effects, exactly once per level (guarded by `done`)
   useEffect(() => {
     if (!done) return;
     void fireConfetti(state.status === "chapter_done");
     vibrate([15, 60, 15, 60, 30]);
+    if (state.status === "chapter_done") sfx.unlock();
+    else sfx.complete();
+    trackEvent(
+      state.status === "chapter_done"
+        ? "journey_chapter_complete"
+        : "journey_level_complete",
+      track,
+      {
+        level: level.id,
+        hints: state.hintsUsed,
+        bonus: state.foundBonus.length,
+      },
+    );
     onComplete({
       coinsEarned: state.coinsEarned,
       bonusFound: state.foundBonus.length,
@@ -249,6 +277,7 @@ function LevelPlay({
       else if (e.key === "Backspace") dispatch({ type: "key_backspace" });
       else if (e.key === "Escape") dispatch({ type: "key_clear" });
       else if (/^[a-z]$/.test(e.key.toLowerCase())) {
+        sfx.click();
         dispatch({ type: "key_letter", letter: e.key.toLowerCase() });
       }
     };
@@ -271,8 +300,11 @@ function LevelPlay({
     if (candidates.length === 0) return;
     if (!onSpend(HINT_COST)) {
       setToast("Not enough coins — find bonus words!");
+      sfx.invalid();
       return;
     }
+    sfx.spend();
+    trackEvent("journey_hint", track, { level: level.id, type: "random" });
     const cell = candidates[Math.floor(Math.random() * candidates.length)];
     dispatch({ type: "hint", cell });
   };
@@ -281,8 +313,11 @@ function LevelPlay({
     setTargetMode(false);
     if (!onSpend(TARGET_HINT_COST)) {
       setToast("Not enough coins — find bonus words!");
+      sfx.invalid();
       return;
     }
+    sfx.spend();
+    trackEvent("journey_hint", track, { level: level.id, type: "target" });
     dispatch({ type: "hint", cell });
   };
 
@@ -375,8 +410,14 @@ function LevelPlay({
             selection={state.selection}
             tracing={state.tracing}
             disabled={done}
-            onTraceStart={(i) => dispatch({ type: "trace_start", index: i })}
-            onTraceEnter={(i) => dispatch({ type: "trace_enter", index: i })}
+            onTraceStart={(i) => {
+              sfx.click(0);
+              dispatch({ type: "trace_start", index: i });
+            }}
+            onTraceEnter={(i) => {
+              if (!state.selection.includes(i)) sfx.click(state.selection.length);
+              dispatch({ type: "trace_enter", index: i });
+            }}
             onTraceEnd={() => dispatch({ type: "trace_end" })}
             onTraceCancel={() => dispatch({ type: "trace_cancel" })}
             onShuffle={shuffle}

@@ -21,6 +21,9 @@ export default async function AdminLayout({
         <Link href="/admin/flagged" className="underline">
           Flagged
         </Link>
+        <Link href="/admin/stats" className="underline">
+          Stats
+        </Link>
         <Link href="/admin/draws" className="underline">
           Draws
         </Link>

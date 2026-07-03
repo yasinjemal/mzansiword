@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { buildShareText, whatsappShareUrl } from "@/lib/share";
 import { msUntilNextSastMidnight } from "@/lib/time";
+import { trackEvent } from "@/lib/track-event";
 import type { GuessEntry } from "@/lib/game/types";
 import type { Mark } from "@/lib/engine/score";
 import type { TrackCode } from "@/lib/engine/keyboard";
@@ -140,6 +141,7 @@ export function ResultPanel({
           href="#"
           onClick={(e) => {
             e.preventDefault();
+            trackEvent("share_click", track);
             window.open(whatsappShareUrl(shareText()), "_blank");
           }}
           className="animate-glow flex cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3.5 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"

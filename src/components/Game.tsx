@@ -9,6 +9,8 @@ import { Keyboard } from "./Keyboard";
 // solve on a second account.
 import { ResultPanel } from "./ResultPanel";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
+import { sfx } from "@/lib/sound";
+import { trackEvent } from "@/lib/track-event";
 import type { GuessEntry, GuessResponse, PlayStateDto } from "@/lib/game/types";
 
 const FLIP_STAGGER_MS = 260;
@@ -193,6 +195,7 @@ export function Game({
       const used = state.committed.length;
       dispatch({ type: "toast", toast: PRAISE[used] ?? "Lekker!" });
       vibrate([15, 60, 15, 60, 30]);
+      sfx.complete();
       void fireConfetti();
     }
   }, [state.revealing, state.pending, state.danceRow, state.status, state.committed.length]);
@@ -218,6 +221,7 @@ export function Game({
     if (state.input.length !== length) {
       dispatch({ type: "submit_fail", toast: "Not enough letters", shake: true });
       vibrate([12, 40, 12]);
+      sfx.invalid();
       return;
     }
     dispatch({ type: "submit_start" });
@@ -229,6 +233,14 @@ export function Game({
       });
       if (res.ok) {
         const data: GuessResponse = await res.json();
+        if (state.committed.length === 0) trackEvent("daily_start", track);
+        if (data.solved) {
+          trackEvent("daily_solve", track, {
+            guesses: state.committed.length + 1,
+          });
+        } else if (data.gameOver) {
+          trackEvent("daily_fail", track);
+        }
         dispatch({
           type: "submit_ok",
           entry: { word: state.input, marks: data.marks },
@@ -246,7 +258,10 @@ export function Game({
         toast: ERROR_TOASTS[error] ?? "Something went wrong — try again",
         shake: error === "not_in_word_list" || error === "wrong_length",
       });
-      if (error === "not_in_word_list") vibrate([12, 40, 12]);
+      if (error === "not_in_word_list") {
+        vibrate([12, 40, 12]);
+        sfx.invalid();
+      }
     } catch {
       dispatch({
         type: "submit_fail",
@@ -264,6 +279,7 @@ export function Game({
         dispatch({ type: "backspace" });
       } else if (/^[a-z]$/.test(key)) {
         vibrate(6);
+        sfx.click();
         dispatch({ type: "letter", letter: key, length });
       }
     },
