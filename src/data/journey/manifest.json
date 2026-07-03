@@ -29,14 +29,18 @@
       "chapters": [
         {
           "index": 1,
-          "levelCount": 7
+          "levelCount": 12
         },
         {
           "index": 2,
-          "levelCount": 8
+          "levelCount": 12
+        },
+        {
+          "index": 3,
+          "levelCount": 11
         }
       ],
-      "totalLevels": 15
+      "totalLevels": 35
     }
   }
 }

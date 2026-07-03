@@ -26,6 +26,7 @@ const chapterImports: Record<
   xh: {
     1: () => import("@/data/journey/xh/chapter-1.json") as Promise<ChapterModule>,
     2: () => import("@/data/journey/xh/chapter-2.json") as Promise<ChapterModule>,
+    3: () => import("@/data/journey/xh/chapter-3.json") as Promise<ChapterModule>,
   },
 };
 
