@@ -73,8 +73,8 @@ export function JourneyMap({
         href={unlocked ? `/journey/${track}/${Math.max(start, Math.min(levelsCompleted + 1, end))}` : "#"}
         aria-disabled={!unlocked}
         onClick={unlocked ? undefined : (e) => e.preventDefault()}
-        className={`relative overflow-hidden rounded-2xl border border-white/10 shadow-lg shadow-black/30 transition-transform ${
-          unlocked ? "cursor-pointer active:scale-[0.99]" : "cursor-not-allowed"
+        className={`relative overflow-hidden rounded-2xl border border-white/10 shadow-lg shadow-black/30 ${
+          unlocked ? "press-spring cursor-pointer" : "cursor-not-allowed"
         }`}
       >
         <div className={unlocked ? "" : "opacity-45 grayscale"}>

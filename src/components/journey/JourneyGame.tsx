@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { CrosswordGrid } from "./CrosswordGrid";
 import { JourneyBackdrop } from "./JourneyBackdrop";
 import { LetterWheel } from "./LetterWheel";
@@ -29,6 +36,8 @@ import {
   emptyTrackProgress,
 } from "@/lib/journey/progress";
 import { fireConfetti, vibrate } from "@/lib/celebrate";
+import { coinsTarget, fx, rectCenter } from "@/lib/fx";
+import { springEnter } from "@/lib/spring";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
 import type { ChapterTheme, JourneyLevel } from "@/lib/journey/types";
@@ -207,6 +216,8 @@ function LevelPlay({
   );
   const [targetMode, setTargetMode] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const gridWrapRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
   const done = state.status !== "playing";
 
   useEffect(() => {
@@ -220,6 +231,8 @@ function LevelPlay({
     if (kind === "grid") {
       vibrate([10, 40, 20]);
       sfx.correct();
+      const c = rectCenter(gridWrapRef.current);
+      if (c) fx.sparkleBurst(c.x, c.y, { count: 22 });
       return;
     }
     if (kind === "bonus") {
@@ -227,6 +240,12 @@ function LevelPlay({
       sfx.bonus();
       sfx.coin();
       trackEvent("journey_bonus_word", track, { level: level.id });
+      const from = rectCenter(statusRef.current);
+      if (from) {
+        fx.sparkleBurst(from.x, from.y, { count: 12, speed: 160 });
+        const to = coinsTarget();
+        if (to) fx.coinBurstTo(from.x, from.y, to, 7);
+      }
     }
     if (kind === "invalid") {
       vibrate([12, 40, 12]);
@@ -246,6 +265,12 @@ function LevelPlay({
   useEffect(() => {
     if (!done) return;
     void fireConfetti(state.status === "chapter_done");
+    const c = rectCenter(gridWrapRef.current);
+    if (c) {
+      const chapter = state.status === "chapter_done";
+      fx.shockwave(c.x, c.y, undefined, chapter ? 150 : 110);
+      fx.sparkleBurst(c.x, c.y, { count: chapter ? 44 : 28, speed: 300 });
+    }
     vibrate([15, 60, 15, 60, 30]);
     if (state.status === "chapter_done") sfx.unlock();
     else sfx.complete();
@@ -354,22 +379,24 @@ function LevelPlay({
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-evenly gap-3">
-        <CrosswordGrid
-          level={level}
-          foundWords={state.foundWords}
-          revealedCells={state.revealedCells}
-          lastFound={state.lastFound}
-          targetMode={targetMode}
-          onCellTap={targetHint}
-        />
+        <div ref={gridWrapRef} className="w-full">
+          <CrosswordGrid
+            level={level}
+            foundWords={state.foundWords}
+            revealedCells={state.revealedCells}
+            lastFound={state.lastFound}
+            targetMode={targetMode}
+            onCellTap={targetHint}
+          />
+        </div>
 
-        <div className="flex h-9 items-center justify-center">
+        <div ref={statusRef} className="flex h-9 items-center justify-center">
           {toast ? (
             <span className="chip-glass animate-rise rounded-full px-4 py-1.5 text-sm font-semibold text-gold">
               {toast}
             </span>
           ) : selectionWord ? (
-            <span className="btn-gold rounded-full px-5 py-1.5 font-display text-lg font-bold tracking-wider">
+            <span className="btn-gold animate-spring-in rounded-full px-5 py-1.5 font-display text-lg font-bold tracking-wider">
               {selectionWord}
             </span>
           ) : (
@@ -385,7 +412,7 @@ function LevelPlay({
             <button
               type="button"
               onClick={randomHint}
-              className="chip-glass flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold transition-transform active:scale-95"
+              className="chip-glass press-spring flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold"
             >
               <BulbIcon className="h-4 w-4" />
               {HINT_COST}
@@ -393,8 +420,8 @@ function LevelPlay({
             <button
               type="button"
               onClick={() => setTargetMode((t) => !t)}
-              className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-transform active:scale-95 ${
-                targetMode ? "btn-gold" : "chip-glass text-gold"
+              className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold ${
+                targetMode ? "btn-gold" : "chip-glass press-spring text-gold"
               }`}
             >
               <TargetIcon className="h-4 w-4" />
@@ -415,7 +442,10 @@ function LevelPlay({
               dispatch({ type: "trace_start", index: i });
             }}
             onTraceEnter={(i) => {
-              if (!state.selection.includes(i)) sfx.click(state.selection.length);
+              if (!state.selection.includes(i)) {
+                sfx.click(state.selection.length);
+                vibrate(8); // subtle tick as the trace catches a letter
+              }
               dispatch({ type: "trace_enter", index: i });
             }}
             onTraceEnd={() => dispatch({ type: "trace_end" })}
@@ -463,8 +493,17 @@ function CompleteCard({
   mapHref: string;
 }) {
   const chapterDone = state.status === "chapter_done";
+  const cardRef = useRef<HTMLDivElement>(null);
+  // spring entrance (GAME-FEEL.md #4); layout effect so the un-sprung frame
+  // never paints
+  useLayoutEffect(() => {
+    if (cardRef.current) springEnter(cardRef.current, 22);
+  }, []);
   return (
-    <div className="animate-rise relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-surface/95 p-5 pt-6 text-center shadow-2xl shadow-black/60">
+    <div
+      ref={cardRef}
+      className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-surface/95 p-5 pt-6 text-center shadow-2xl shadow-black/60"
+    >
       <div className="pattern-band absolute inset-x-0 top-0" />
       <div className="sunburst pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 -translate-y-1/3" />
       <p className="relative font-display text-2xl font-extrabold tracking-tight">

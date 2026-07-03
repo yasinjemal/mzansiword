@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Fredoka } from "next/font/google";
 import "./globals.css";
+import { FxLayer } from "@/components/FxLayer";
 import { Header } from "@/components/Header";
 import { SwRegister } from "@/components/SwRegister";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="en" className={`${fredoka.variable} ${bricolage.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <SwRegister />
+        <FxLayer />
         <Header />
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-3 pt-3">
           {children}

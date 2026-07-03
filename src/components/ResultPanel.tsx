@@ -144,7 +144,7 @@ export function ResultPanel({
             trackEvent("share_click", track);
             window.open(whatsappShareUrl(shareText()), "_blank");
           }}
-          className="animate-glow flex cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3.5 font-display text-lg font-semibold text-[#0b1210] transition-transform active:scale-[0.98]"
+          className="animate-glow press-spring flex cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3.5 font-display text-lg font-semibold text-ink"
         >
           <WhatsAppIcon className="h-6 w-6" />
           Challenge your chommies

@@ -175,7 +175,7 @@ export default function Home() {
 
         <Link
           href={`/journey/${journeyTrack}/${journeyLevel}`}
-          className="relative cursor-pointer overflow-hidden rounded-2xl border border-white/10 text-left shadow-lg shadow-black/30 transition-transform active:scale-[0.98]"
+          className="press-spring relative cursor-pointer overflow-hidden rounded-2xl border border-white/10 text-left shadow-lg shadow-black/30"
         >
           <ChapterScene theme={theme} />
           <div className="relative z-10 flex items-center justify-between px-5 py-5">

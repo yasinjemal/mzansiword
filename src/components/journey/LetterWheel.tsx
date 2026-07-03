@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { fx } from "@/lib/fx";
 import { ShuffleIcon } from "../icons";
 
 const SIZE = 272; // px, square
@@ -45,6 +46,7 @@ export function LetterWheel({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rectRef = useRef<DOMRect | null>(null);
+  const poppedRef = useRef<Set<number>>(new Set()); // letters already fx-popped this trace
   const [pointer, setPointer] = useState<Point | null>(null);
 
   const positions = order.map((_, p) => positionFor(p, wheel.length));
@@ -65,6 +67,14 @@ export function LetterWheel({
     return null;
   }
 
+  function popAt(wheelIndex: number) {
+    const rect = rectRef.current;
+    if (!rect || poppedRef.current.has(wheelIndex)) return;
+    poppedRef.current.add(wheelIndex);
+    const pos = positions[displayOf(wheelIndex)];
+    fx.pop(rect.left + pos.x, rect.top + pos.y);
+  }
+
   function handleDown(e: React.PointerEvent) {
     if (disabled) return;
     rectRef.current = containerRef.current!.getBoundingClientRect();
@@ -74,6 +84,8 @@ export function LetterWheel({
     if (hit === null) return;
     containerRef.current!.setPointerCapture(e.pointerId);
     setPointer(p);
+    poppedRef.current = new Set();
+    popAt(hit);
     onTraceStart(hit);
   }
 
@@ -82,18 +94,24 @@ export function LetterWheel({
     const p = localPoint(e);
     if (!p) return;
     setPointer(p);
+    fx.trail(e.clientX, e.clientY);
     const hit = hitTest(p);
-    if (hit !== null) onTraceEnter(hit);
+    if (hit !== null) {
+      if (!selection.includes(hit)) popAt(hit);
+      onTraceEnter(hit);
+    }
   }
 
   function handleUp() {
     if (!tracing) return;
     setPointer(null);
+    poppedRef.current = new Set();
     onTraceEnd();
   }
 
   function handleCancel() {
     setPointer(null);
+    poppedRef.current = new Set();
     onTraceCancel();
   }
 

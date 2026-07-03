@@ -16,7 +16,8 @@ export function vibrate(pattern: number | number[]) {
 export async function fireConfetti(big = false) {
   if (reducedMotion()) return;
   const confetti = (await import("canvas-confetti")).default;
-  const colors = ["#22c55e", "#fbbf24", "#f4f7f5", "#15803d"];
+  // Highveld Dusk palette (globals.css): brand greens, SA gold, terracotta.
+  const colors = ["#2bd684", "#ffb612", "#ffd45c", "#f7f3ea", "#e2725b"];
   confetti({
     particleCount: big ? 130 : 80,
     spread: big ? 90 : 75,
