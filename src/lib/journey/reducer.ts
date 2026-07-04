@@ -35,6 +35,7 @@ export interface JourneyState {
   coinsEarned: number; // this level: bonus + completion rewards
   hintsUsed: number;
   lastFound: string | null; // most recently filled grid word (animation)
+  combo: number; // consecutive grid/bonus words without an invalid guess
 }
 
 export type JourneyAction =
@@ -68,6 +69,7 @@ export function initJourneyState(
     coinsEarned: 0,
     hintsUsed: 0,
     lastFound: null,
+    combo: 0,
   };
 }
 
@@ -149,6 +151,7 @@ function resolve(state: JourneyState, word: string): JourneyState {
       ...cleared,
       foundWords,
       lastFound: word,
+      combo: state.combo + 1,
       feedback: fb("grid", word),
     });
   }
@@ -161,11 +164,14 @@ function resolve(state: JourneyState, word: string): JourneyState {
       ...cleared,
       foundBonus: [...state.foundBonus, word],
       coinsEarned: state.coinsEarned + BONUS_WORD_REWARD,
+      combo: state.combo + 1,
       feedback: fb("bonus", word),
     };
   }
 
-  return { ...cleared, feedback: fb("invalid", word) };
+  // an invalid guess breaks the chain (dupes/short slips don't — they're
+  // fumbles, not mistakes)
+  return { ...cleared, combo: 0, feedback: fb("invalid", word) };
 }
 
 function selectionWord(state: JourneyState): string {

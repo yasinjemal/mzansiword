@@ -16,6 +16,7 @@ const EVENT_NAMES = [
   "journey_chapter_complete",
   "journey_bonus_word",
   "journey_hint",
+  "journey_moment",
 ] as const;
 
 const BodySchema = z.object({

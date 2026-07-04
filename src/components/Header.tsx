@@ -50,6 +50,9 @@ export function Header() {
             >
               <FlameIcon className="h-4 w-4 animate-flame text-terracotta" />
               {streak}
+              <span className="text-[0.6rem] font-extrabold uppercase tracking-wide opacity-80">
+                day{streak === 1 ? "" : "s"}
+              </span>
             </Link>
           )}
           {LIVE_TRACKS.map(({ code, name }) => {

@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -14,10 +15,12 @@ import { CrosswordGrid } from "./CrosswordGrid";
 import { JourneyBackdrop } from "./JourneyBackdrop";
 import { LetterWheel } from "./LetterWheel";
 import { CoinsChip } from "./CoinsChip";
+import { MzansiMoment } from "./MzansiMoment";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   BulbIcon,
+  FlameIcon,
   SparkIcon,
   TargetIcon,
 } from "../icons";
@@ -29,6 +32,7 @@ import {
 } from "@/lib/journey/reducer";
 import { wordCells } from "@/lib/journey/layout";
 import { HINT_COST, TARGET_HINT_COST } from "@/lib/journey/economy";
+import { momentForLevel, type Moment } from "@/lib/journey/moments";
 import {
   loadLocal,
   saveLocal,
@@ -156,6 +160,23 @@ export function JourneyGame({
   const level = levels[levelIdx];
   const isLastInChapter = levelIdx === levels.length - 1;
 
+  // Mzansi Moment interstitial: intercepts "next" every MOMENT_EVERY levels
+  const [moment, setMoment] = useState<{ m: Moment; cont: () => void } | null>(
+    null,
+  );
+  const withMoment = useCallback(
+    (cont: () => void) => {
+      const m = momentForLevel(globalLevel);
+      if (m) {
+        trackEvent("journey_moment", track, { id: m.id, level: globalLevel });
+        setMoment({ m, cont });
+      } else {
+        cont();
+      }
+    },
+    [globalLevel, track],
+  );
+
   return (
     <>
       <JourneyBackdrop theme={theme} />
@@ -174,7 +195,18 @@ export function JourneyGame({
         onNext={() => setLevelIdx((i) => i + 1)}
         hasNextLevel={!isLastInChapter}
         nextChapterFirstGlobal={nextChapterFirstGlobal}
+        withMoment={withMoment}
       />
+      {moment && (
+        <MzansiMoment
+          moment={moment.m}
+          onDismiss={() => {
+            const cont = moment.cont;
+            setMoment(null);
+            cont();
+          }}
+        />
+      )}
     </>
   );
 }
@@ -193,6 +225,7 @@ function LevelPlay({
   onNext,
   hasNextLevel,
   nextChapterFirstGlobal,
+  withMoment,
 }: {
   level: JourneyLevel;
   isLastInChapter: boolean;
@@ -207,6 +240,7 @@ function LevelPlay({
   onNext: () => void;
   hasNextLevel: boolean;
   nextChapterFirstGlobal: number | null;
+  withMoment: (cont: () => void) => void;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(
@@ -216,36 +250,54 @@ function LevelPlay({
   );
   const [targetMode, setTargetMode] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [nudge, setNudge] = useState<0 | 1 | 2>(0); // 0 fine, 1 pulse cells, 2 suggest hint
   const gridWrapRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
+  const hintNudgedRef = useRef(false);
   const done = state.status !== "playing";
+  const foundCount = state.foundWords.length;
 
   useEffect(() => {
     trackEvent("journey_level_start", track, { level: level.id });
   }, [level.id, track]);
 
-  // feedback -> transient toast + haptics
+  // feedback -> transient toast + haptics + celebration FX
   useEffect(() => {
     if (!state.feedback) return;
     const { kind, word } = state.feedback;
+    let label: string | null = FEEDBACK_LABEL[kind]?.(word) ?? null;
     if (kind === "grid") {
       vibrate([10, 40, 20]);
-      sfx.correct();
-      const c = rectCenter(gridWrapRef.current);
-      if (c) fx.sparkleBurst(c.x, c.y, { count: 22 });
-      return;
+      sfx.correct(state.combo);
+      // spark micro-burst on each letter as it pops into the grid
+      const placed = level.words.find((p) => p.word === word);
+      if (placed && gridWrapRef.current) {
+        wordCells(placed).forEach((cell, i) => {
+          const pos = rectCenter(
+            gridWrapRef.current!.querySelector(`[data-cell="${cell}"]`),
+          );
+          if (pos) setTimeout(() => fx.pop(pos.x, pos.y), i * 70);
+        });
+      }
+      label = state.combo >= 2 ? `×${state.combo} combo!` : null;
     }
     if (kind === "bonus") {
       vibrate([10, 30, 10]);
       sfx.bonus();
       sfx.coin();
       trackEvent("journey_bonus_word", track, { level: level.id });
+      fx.flash();
       const from = rectCenter(statusRef.current);
       if (from) {
-        fx.sparkleBurst(from.x, from.y, { count: 12, speed: 160 });
+        fx.floatText(from.x, from.y - 8, "+5");
+        fx.sparkleBurst(from.x, from.y, {
+          count: 12 + Math.min(state.combo, 4) * 4,
+          speed: 180,
+        });
         const to = coinsTarget();
-        if (to) fx.coinBurstTo(from.x, from.y, to, 7);
+        if (to) fx.coinBurstTo(from.x, from.y, to, 6 + Math.min(state.combo, 4));
       }
+      if (state.combo >= 2) label = `${label} · ×${state.combo}`;
     }
     if (kind === "invalid") {
       vibrate([12, 40, 12]);
@@ -253,13 +305,45 @@ function LevelPlay({
     }
     // reducer feedback -> transient toast; cleared by the timeout below
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setToast(FEEDBACK_LABEL[kind]?.(word) ?? null);
+    setToast(label);
     const t = setTimeout(() => {
       setToast(null);
       dispatch({ type: "clear_feedback" });
     }, 1400);
     return () => clearTimeout(t);
-  }, [state.feedback, level.id, track]);
+  }, [state.feedback, state.combo, level, track]);
+
+  // stuck detection: quiet nudges only after real inactivity, reset on progress
+  useEffect(() => {
+    if (done) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNudge(0);
+    const t1 = setTimeout(() => setNudge(1), 30_000);
+    const t2 = setTimeout(() => setNudge(2), 60_000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [foundCount, done]);
+
+  useEffect(() => {
+    if (nudge !== 2 || hintNudgedRef.current) return;
+    hintNudgedRef.current = true;
+    setToast("Stuck? A hint reveals a letter");
+    const t = setTimeout(() => setToast(null), 2600);
+    return () => clearTimeout(t);
+  }, [nudge]);
+
+  // after 30s, the shortest unfound word's empty cells shimmer
+  const nudgeCells = useMemo(() => {
+    if (nudge === 0 || done) return null;
+    const unfound = level.words
+      .filter((p) => !state.foundWords.includes(p.word))
+      .sort((a, b) => a.word.length - b.word.length);
+    if (unfound.length === 0) return null;
+    const filled = filledCells(state);
+    return new Set(wordCells(unfound[0]).filter((c) => !filled.has(c)));
+  }, [nudge, done, level, state]);
 
   // completion side-effects, exactly once per level (guarded by `done`)
   useEffect(() => {
@@ -386,6 +470,7 @@ function LevelPlay({
             revealedCells={state.revealedCells}
             lastFound={state.lastFound}
             targetMode={targetMode}
+            nudgeCells={nudgeCells}
             onCellTap={targetHint}
           />
         </div>
@@ -400,9 +485,21 @@ function LevelPlay({
               {selectionWord}
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 text-sm text-muted">
-              <SparkIcon className={`h-4 w-4 text-gold ${bonusCount ? "animate-burst" : ""}`} />
-              {bonusCount} bonus {bonusCount === 1 ? "word" : "words"} found
+            <span className="flex items-center gap-2.5 text-sm text-muted">
+              <span className="font-semibold text-foreground/80">
+                {foundCount}/{level.words.length} words
+              </span>
+              {bonusCount > 0 && (
+                <span className="flex items-center gap-1">
+                  <SparkIcon className="h-4 w-4 text-gold" />
+                  {bonusCount} bonus
+                </span>
+              )}
+              {state.combo >= 2 && (
+                <span className="flex items-center gap-1 rounded-full bg-terracotta/15 px-2 py-0.5 font-bold text-terracotta">
+                  <FlameIcon className="h-3.5 w-3.5 animate-flame" />×{state.combo}
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -412,7 +509,9 @@ function LevelPlay({
             <button
               type="button"
               onClick={randomHint}
-              className="chip-glass press-spring flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold"
+              className={`chip-glass press-spring flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold ${
+                nudge === 2 ? "animate-glow-gold" : ""
+              }`}
             >
               <BulbIcon className="h-4 w-4" />
               {HINT_COST}
@@ -457,10 +556,13 @@ function LevelPlay({
             state={state}
             accent={accent}
             chapterName={chapterName}
-            onNextLevel={hasNextLevel ? onNext : null}
+            onNextLevel={hasNextLevel ? () => withMoment(onNext) : null}
             onNextChapter={
               state.status === "chapter_done" && nextChapterFirstGlobal
-                ? () => router.push(`/journey/${track}/${nextChapterFirstGlobal}`)
+                ? () =>
+                    withMoment(() =>
+                      router.push(`/journey/${track}/${nextChapterFirstGlobal}`),
+                    )
                 : null
             }
             mapHref={`/journey/${track}`}

@@ -47,7 +47,25 @@ interface RingP {
   color: string;
 }
 
-type Particle = SparkP | CoinP | RingP;
+interface TextP {
+  kind: "text";
+  x: number;
+  y: number;
+  life: number;
+  max: number;
+  text: string;
+  color: string;
+}
+
+interface FlashP {
+  kind: "flash";
+  life: number;
+  max: number;
+  color: string;
+  peak: number; // max alpha, keep low (0.1–0.2)
+}
+
+type Particle = SparkP | CoinP | RingP | TextP | FlashP;
 
 const MAX_PARTICLES = 400; // hard cap; oldest are dropped first
 
@@ -126,7 +144,9 @@ function push(p: Particle) {
 function tick(now: number) {
   raf = 0;
   if (!ctx || !canvas) return;
-  const dt = Math.min((now - last) / 1000, 0.04);
+  // rAF timestamps can precede the performance.now() captured at schedule
+  // time — a negative dt would grow particle life and break the math
+  const dt = Math.max(0, Math.min((now - last) / 1000, 0.04));
   last = now;
 
   const w = canvas.width;
@@ -166,15 +186,41 @@ function tick(now: number) {
       ctx.scale(Math.max(Math.abs(flip), 0.12), 1);
       ctx.drawImage(coinSprite(), -p.size / 2, -p.size / 2, p.size, p.size);
       ctx.restore();
-    } else {
+    } else if (p.kind === "ring") {
       const e = 1 - (1 - t) * (1 - t); // ease-out
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = (1 - t) * 0.9;
       ctx.strokeStyle = p.color;
       ctx.lineWidth = 3.5 * (1 - t) + 0.5;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius * e, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, Math.max(0, p.radius * e), 0, Math.PI * 2);
       ctx.stroke();
+    } else if (p.kind === "text") {
+      const rise = (1 - (1 - t) * (1 - t)) * 44; // ease-out float upward
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = t < 0.15 ? t / 0.15 : 1 - Math.max(0, (t - 0.55) / 0.45);
+      ctx.font = "800 20px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(24,18,6,0.85)";
+      ctx.strokeText(p.text, p.x, p.y - rise);
+      ctx.fillStyle = p.color;
+      ctx.fillText(p.text, p.x, p.y - rise);
+    } else {
+      // flash: brief radial wash over the whole viewport
+      const cw = canvas.clientWidth || w;
+      const chh = canvas.clientHeight || h;
+      const a = p.peak * Math.sin(Math.min(t, 1) * Math.PI);
+      const g = ctx.createRadialGradient(
+        cw / 2, chh * 0.4, 0,
+        cw / 2, chh * 0.4, Math.max(cw, chh) * 0.75,
+      );
+      g.addColorStop(0, p.color);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = a;
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, cw, chh);
     }
     alive.push(p);
   }
@@ -328,5 +374,17 @@ export const fx = {
   shockwave(x: number, y: number, color: string = GOLD, radius = 110) {
     if (reducedMotion() || !ctx) return;
     push({ kind: "ring", x, y, life: 0.6, max: 0.6, radius, color });
+  },
+
+  /** Floating reward text ("+5") that rises and fades. */
+  floatText(x: number, y: number, text: string, color = "#ffd45c") {
+    if (reducedMotion() || !ctx) return;
+    push({ kind: "text", x, y, life: 1.0, max: 1.0, text, color });
+  },
+
+  /** Brief celebratory wash over the screen. Kept subtle by design. */
+  flash(color = "rgba(255,182,18,1)", peak = 0.14) {
+    if (reducedMotion() || !ctx) return;
+    push({ kind: "flash", life: 0.4, max: 0.4, color, peak });
   },
 };

@@ -1,142 +1,137 @@
-# Game Feel Roadmap
+# Game Feel & Retention Roadmap
 
-Goal: make Mzansi Word feel like a native, engine-built game — realistic light,
-physical motion, alive scenes — while staying a fast-loading PWA that runs well
-on entry-level Androids over mobile data.
+Goal: make Mzansi Word impossible to put down — retention mechanics first,
+visual fidelity second — while staying a fast-loading PWA that runs well on
+entry-level Androids over mobile data.
 
-## Hard rules (every pillar must respect these)
+Reprioritized 2026-07-04 after a real play session: the original pillar list
+optimized visual fidelity before game feel. New order: **A retention →
+B feel → C delight → D native**.
+
+## Hard rules (every item must respect these)
 
 - **No heavy engines.** No Unity/Unreal/three.js exports. The instant-play PWA
   link is the growth loop; a 30 MB bundle kills it.
-- **Perf budget:** each pillar adds ≤ ~10 KB gzipped JS unless the decision log
+- **Perf budget:** each item adds ≤ ~10 KB gzipped JS unless the decision log
   says otherwise. Animations use `transform`/`opacity` only.
 - **`prefers-reduced-motion` always respected** — effects no-op, game stays fully playable.
-- **Decorative only.** Every effect layer is `pointer-events: none` and
-  `aria-hidden`; gameplay never depends on it.
-
-## Pillars
-
-| # | Pillar | Status |
-|---|--------|--------|
-| 1 | FX particle layer (bursts, coin-fly, shockwaves, trace trail) | ✅ Done |
-| 2 | Parallax 2.5D chapter scenes (gyro + pointer, twinkle/breathe) | ✅ Done |
-| 3 | Rive animated mascot + hero animations | ⬜ Todo |
-| 4 | Spring physics motion + richer haptics | ✅ Done (device timing pass pending) |
-| 5 | Shader sky (animated dusk, clouds, god rays) | ✅ Done |
-| 6 | Bonus: Capacitor native wrap (Play Store, push, native haptics) | ⬜ Later |
+- **Decorative only.** Effect layers are `pointer-events: none` and
+  `aria-hidden`; gameplay never depends on them.
+- **Economy is server-authoritative.** Celebration can escalate freely;
+  coin *amounts* only change together with the server ledger logic.
 
 ---
 
-### 1. FX particle layer — ✅ Done
+## Phase A — Retention (make it impossible to put down)
 
-**What:** A fixed, transparent canvas over the whole app with a tiny
-zero-dependency particle engine ([src/lib/fx.ts](src/lib/fx.ts), mounted by
-[src/components/FxLayer.tsx](src/components/FxLayer.tsx)). Additive blending
-(`globalCompositeOperation: "lighter"`) gives the glowy "engine" look.
+| Item | Status |
+|------|--------|
+| A1. Word progress indicator + stuck nudges | ✅ Done |
+| A2. Bonus words feel amazing | ✅ Done |
+| A3. Word reveal satisfaction | ✅ Done |
+| A4. Chain combo | ✅ Done (celebration; coin multiplier pending server work) |
+| A5. Streak emotion | ✅ Done |
+| A6. Sound redesign | ✅ Done |
+| A7. Mzansi Moments | ✅ Done |
 
-**Wired events:**
-- Word lands in grid → gold sparkle burst over the grid
-- Bonus word → sparkles + coins that arc physically into the coin chip
-  (targets `[data-fx="coins"]`)
-- Level / chapter complete → shockwave ring + big burst
-- Letter wheel: sparkle trail follows the finger; letters pop when caught
+### A1. Progress + stuck nudges — ✅
+The status line now always shows `found/total words` (plus bonus count), so
+"how many are left?" is never a mystery. Stuck detection in
+[JourneyGame](src/components/journey/JourneyGame.tsx): 30 s without finding a
+word → the cells of one unfound word shimmer gently (`.jcell-nudge`); 60 s →
+a one-time "a hint reveals a letter" toast and the hint buttons glow. Timers
+reset on every found word; nothing fires before the player is actually stuck.
 
-**Decision log:** implemented with canvas 2D + pre-rendered sprites instead of
-PixiJS. At our particle counts (≤ ~150 live) canvas 2D holds 60 fps on low-end
-devices and costs 0 KB of dependencies vs ~100 KB. The `fx.*` emitter API is
-the stable boundary — **upgrade trigger:** if we ever want shader-based
-effects or >1k simultaneous particles, swap the engine behind `fx.*` for
-PixiJS without touching call sites.
+### A2. Bonus celebration — ✅
+Bonus word now: gold screen flash (subtle, 0.14 alpha), floating "+5" text
+particle, sparkle burst, coins arcing into the wallet, sparkle sfx. Combo
+multiplies the spectacle (more coins/sparks, higher pitch), not the payout.
 
-**Not yet wired (nice-to-haves):** daily-game win row, hint reveal sparkle on
-the revealed cell, key-press dust on the daily keyboard.
+### A3. Word reveal — ✅
+Each letter of a landed word pops into the grid with a spark micro-burst at
+its cell (staggered with the fill animation) and the word glows gold for a
+beat afterwards (`jcell-glow` keyframe).
 
-### 2. Parallax 2.5D chapter scenes — ✅ Done
+### A4. Chain combo — ✅ (celebration)
+`combo` lives in the pure reducer ([reducer.ts](src/lib/journey/reducer.ts)):
++1 per grid/bonus word, reset by an invalid word. From ×2 the toast announces
+the combo, FX and sfx pitch escalate, and a flame chip shows in the status
+line. **Coin multiplier is deferred:** wallet amounts are recomputed
+server-side from `{bonusFound, hintsUsed}`, so a client-side multiplier would
+be clawed back on sync. Do it together with the Supabase ledger work
+(add `comboPeak` to `/api/journey/complete`, cap server-side).
 
-**What:** [JourneyBackdrop](src/components/journey/JourneyBackdrop.tsx) is now
-layered — stars, sun glow, far ridge, chapter art, near ridge — each moving at
-a different depth in response to device tilt (gyroscope) and pointer position
-([src/lib/useParallax.ts](src/lib/useParallax.ts) writes `--px/--py`; layers
-apply `translate3d(calc(var(--px) * -depth))` and are slightly overscaled so
-edges never show). Stars twinkle and the sun glow breathes on slow loops
-(opacity-only keyframes `fx-twinkle` / `fx-breathe` in globals.css) so scenes
-feel alive even with no sensor input.
+### A5. Streak emotion — ✅
+The header streak chip now reads "N-day" with a flickering flame (scale +
+sway keyframes, terracotta on gold). Same treatment wherever streak appears.
 
-**Notes:** iOS requires a user-gesture permission for gyro — we intentionally
-don't prompt; iOS falls back to pointer + idle animation. Landing/map
-`ChapterScene` cards stay static (scroll perf) — revisit if we want tilt there.
+### A6. Sound redesign — ✅
+[sound.ts](src/lib/sound.ts) upgraded, still 100 % synthesized (zero files):
+noise-layer engine added; word = soft *shh* + rising triad + low thump;
+bonus = fast sparkle arpeggio; level complete = *shhh-boom* swell + chord;
+chapter = big layered hit with cymbal-ish noise tail; combo raises the word
+chord's pitch. Note: audio was wired all along — if it seems silent, check
+the mute toggle (speaker icon, header) and device media volume; the old
+sounds were also simply too thin, which this pass fixes.
 
-### 3. Rive mascot — ⬜ Todo
+### A7. Mzansi Moments — ✅
+Every 5th completed level, tapping "Next level" first shows a full-screen
+South African vignette — landmark scene + one-line fun fact, tap to continue
+([MzansiMoment.tsx](src/components/journey/MzansiMoment.tsx), data in
+[moments.ts](src/lib/journey/moments.ts): Table Mountain, Wild Coast, Karoo,
+Namaqualand, Kruger, Drakensberg, Soweto, Joburg). Scenes are code-drawn
+(palette + silhouette) with the same `/public/themes/moment-<id>.webp`
+drop-in upgrade path as chapters. Progressing = traveling across the country.
 
-**What:** An original animated character (springbok / meerkat direction) built
-in [Rive](https://rive.app) with a state machine: idle, watching trace,
-celebrate (level clear), streak hype, sleepy (idle timeout). Rive runtime is
-~40 KB + a 20–100 KB `.riv` file; renders to its own small canvas.
+---
 
-**Where it appears:** level-complete card first (biggest emotional beat),
-then journey map header, then daily-game result panel.
+## Phase B — Feel ✅ (all shipped)
 
-**Done when:** mascot reacts to at least 4 game states; file budget ≤ 150 KB
-total; reduced-motion shows a static pose.
+| Item | Status |
+|------|--------|
+| B1. FX particle layer | ✅ |
+| B2. Spring physics + haptics | ✅ (device timing pass pending) |
+| B3. Parallax 2.5D scenes | ✅ |
 
-**Prereq:** design the character (Rive editor is manual work — needs a human
-or commissioned artist; code side is trivial once the .riv exists).
+- **B1** [fx.ts](src/lib/fx.ts) + [FxLayer.tsx](src/components/FxLayer.tsx):
+  zero-dep canvas engine, additive blending, pre-rendered sprites. Bursts,
+  coin-fly, shockwaves, trace trail, floating text, screen flash. Decision:
+  canvas 2D over PixiJS (~0 KB vs ~100 KB; identical at our particle counts).
+  Upgrade trigger: shaders or >1k live particles → swap engine behind `fx.*`.
+- **B2** [spring.ts](src/lib/spring.ts): damped oscillator → WAAPI keyframes;
+  CSS spring-release curves on buttons/keys/wheel/cards; haptic tick per
+  caught letter. Tune stiffness/damping on a real low-end Android.
+- **B3** [useParallax.ts](src/lib/useParallax.ts) + layered
+  [JourneyBackdrop](src/components/journey/JourneyBackdrop.tsx): gyro +
+  pointer depth, twinkle/breathe idle life.
 
-### 4. Spring physics motion + haptics — ✅ Done
+## Phase C — Delight
 
-**What shipped:** hand-rolled springs, 0 KB of dependencies, two mechanisms:
+| Item | Status |
+|------|--------|
+| C1. Shader sky | ✅ Done |
+| C2. Rive mascot | ⬜ Deliberately parked |
 
-- **JS springs** ([src/lib/spring.ts](src/lib/spring.ts)): a damped harmonic
-  oscillator sampled into Web Animations API keyframes (the Motion One
-  technique). `springEnter` drives the level-complete card entrance;
-  `springPop` drives the coin chip bump on every earn.
-- **CSS spring-release curves** (globals.css): presses are fast/eased, but
-  releases use overshooting `cubic-bezier(0.32, 1.75, 0.45, 1)` so buttons,
-  keyboard keys, wheel letters, hint chips, and map cards (`.press-spring`)
-  snap back with a physical wobble. The trace selection pill mounts with
-  `.animate-spring-in`.
+- **C1** [ShaderSky.tsx](src/components/journey/ShaderSky.tsx): raw-WebGL dusk
+  (drift, fbm clouds, god rays), 0.6× res @ ~30 fps, low-power GPU, pauses on
+  hidden tab / when chapter art covers it, CSS gradient fallback. Possible
+  follow-up: god rays *above* art via `mix-blend-mode: screen` canvas.
+- **C2** parked on purpose: mascots don't move retention until players
+  already love the game. Revisit after Phase A metrics look good. Needs a
+  character designed in Rive (~40 KB runtime + 20–100 KB file) — idle /
+  watching / celebrate / streak-hype / sleepy states.
 
-**Haptics:** added an 8 ms tick each time the trace catches a wheel letter,
-on top of the existing word/complete/invalid patterns in
-[src/lib/celebrate.ts](src/lib/celebrate.ts).
+## Phase D — Native wrap (last)
 
-**Remaining:** timing constants (stiffness/damping, bezier overshoot) deserve
-a feel pass on a real low-end Android — tune in `spring.ts` and the
-`.press-spring`/button transitions in globals.css.
-
-### 5. Shader sky — ✅ Done
-
-**What shipped:**
-[ShaderSky.tsx](src/components/journey/ShaderSky.tsx) — one fragment shader,
-raw WebGL, zero dependencies, layered between the CSS gradient fallback and
-the parallax layers in the journey backdrop. Slow gradient drift, drifting
-fbm clouds in the mid-sky band, and a sun halo with slowly turning god rays,
-all in the chapter palette (stars stay in the parallaxed SVG layer — no
-duplication).
-
-**Perf/battery decisions:** renders at 0.6× CSS resolution and ~30 fps (the
-sky is soft and slow; upscaling is invisible), `powerPreference: "low-power"`,
-pauses on `visibilitychange`, **pauses when the chapter's drop-in art has
-fully faded in over it** (its main runtime role is covering the seconds while
-~150 KB art loads, plus any chapter shipped before its art exists), and
-reduced-motion renders exactly one still frame. No WebGL / compile failure /
-context loss → canvas never fades in and the CSS gradient stands.
-
-**Possible follow-up:** god rays *above* the chapter art via a second canvas
-with `mix-blend-mode: screen` — additive light works over paintings; clouds
-don't. Try only if the art still feels too static.
-
-### 6. Capacitor native wrap — ⬜ Later
-
-Wrap the finished PWA with Capacitor for a Play Store listing: native haptics
-(`@capacitor/haptics`), push notifications for streaks, splash screen. Zero
-rewrite — same Next.js app. Do this only after pillars 1–5 and the pilot
-launch checklist (Supabase project, OTP, isiXhosa review) are done.
+Capacitor wrap of the finished PWA for a Play Store listing: native haptics,
+push notifications for streaks, splash screen. Zero rewrite. Only after
+Phases A–C and the pilot launch checklist (Supabase project, Twilio OTP,
+isiXhosa review, legal pages).
 
 ---
 
 ## How we work this list
 
-One pillar per PR/session. Update the status table + pillar section in this
-file in the same change. Every pillar gets verified on a real phone (or at
-minimum driven headless via Playwright at 414×896) before it's marked ✅.
+One item (or tight group) per session. Update the status tables + section in
+this file in the same change. Every item gets verified by playing — real
+phone ideally, else driven headless via Playwright at 414×896 — before ✅.

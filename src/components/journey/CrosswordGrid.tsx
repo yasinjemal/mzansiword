@@ -18,6 +18,7 @@ export function CrosswordGrid({
   revealedCells,
   lastFound,
   targetMode,
+  nudgeCells,
   onCellTap,
 }: {
   level: JourneyLevel;
@@ -25,6 +26,7 @@ export function CrosswordGrid({
   revealedCells: string[];
   lastFound: string | null;
   targetMode: boolean;
+  nudgeCells?: Set<string> | null;
   onCellTap: (cell: string) => void;
 }) {
   const cells = useMemo(() => {
@@ -64,11 +66,12 @@ export function CrosswordGrid({
         ? `jcell jcell-filled ${cell.animIndex !== null ? "jcell-fill-anim" : ""}`
         : cell.revealed
           ? "jcell jcell-revealed"
-          : "jcell jcell-empty";
+          : `jcell jcell-empty ${nudgeCells?.has(key) ? "jcell-nudge" : ""}`;
       const tappable = targetMode && !showLetter;
       rows.push(
         <div
           key={key}
+          data-cell={key}
           onClick={tappable ? () => onCellTap(key) : undefined}
           className={`${cls} ${tappable ? "cursor-pointer ring-2 ring-gold/60" : ""}`}
           style={
