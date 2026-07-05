@@ -44,6 +44,9 @@ import { coinsTarget, fx, rectCenter } from "@/lib/fx";
 import { springEnter } from "@/lib/spring";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
+import { recordJourneyProgress } from "@/lib/signature/store";
+import { SignatureMomentCard } from "../SignatureMomentCard";
+import type { SignatureMoment } from "@/lib/signature/types";
 import type { ChapterTheme, JourneyLevel } from "@/lib/journey/types";
 
 const FEEDBACK_LABEL: Record<string, (word: string) => string> = {
@@ -58,6 +61,8 @@ interface CompletionInfo {
   bonusFound: number;
   hintsUsed: number;
   chapterDone: boolean;
+  /** New words discovered this level: grid words + bonus words found. */
+  wordsAdded: number;
 }
 
 export function JourneyGame({
@@ -69,6 +74,7 @@ export function JourneyGame({
   startLevelInChapter,
   nextChapterFirstGlobal,
   theme,
+  authed,
 }: {
   track: string;
   trackName: string;
@@ -78,9 +84,12 @@ export function JourneyGame({
   startLevelInChapter: number; // 1-based
   nextChapterFirstGlobal: number | null;
   theme: ChapterTheme;
+  authed: boolean;
 }) {
   const [levelIdx, setLevelIdx] = useState(startLevelInChapter - 1);
   const [coins, setCoins] = useState(0);
+  // Signature Moments earned by a Journey completion (Bible §6.5).
+  const [sigMoments, setSigMoments] = useState<SignatureMoment[]>([]);
 
   useEffect(() => {
     // client-only wallet hydration from localStorage
@@ -114,6 +123,20 @@ export function JourneyGame({
       local.lifetimeCoins += info.coinsEarned;
       saveLocal(local);
       setCoins(local.coins);
+      // Surface any Signature Moments earned by this completion (Bible §6.5) —
+      // words discovered, first chapter, levels explored. Only past the replay
+      // guard above, so nothing double-counts.
+      const earned = recordJourneyProgress(
+        {
+          levelsCompleted: globalLevel,
+          chaptersCompleted: info.chapterDone
+            ? chapterIndex
+            : tp.chaptersCompleted,
+          wordsAdded: info.wordsAdded,
+        },
+        authed,
+      );
+      if (earned.length) setTimeout(() => setSigMoments(earned), 700);
       // Fire-and-forget server ledger sync; the server clamps and, when the
       // response lands, its wallet is authoritative.
       fetch("/api/journey/complete", {
@@ -137,7 +160,7 @@ export function JourneyGame({
         })
         .catch(() => {});
     },
-    [track, globalLevel, chapterIndex],
+    [track, globalLevel, chapterIndex, authed],
   );
 
   const spendCoins = useCallback(
@@ -205,6 +228,12 @@ export function JourneyGame({
             setMoment(null);
             cont();
           }}
+        />
+      )}
+      {sigMoments.length > 0 && (
+        <SignatureMomentCard
+          moments={sigMoments}
+          onDone={() => setSigMoments([])}
         />
       )}
     </>
@@ -374,6 +403,7 @@ function LevelPlay({
       bonusFound: state.foundBonus.length,
       hintsUsed: state.hintsUsed,
       chapterDone: state.status === "chapter_done",
+      wordsAdded: level.words.length + state.foundBonus.length,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);

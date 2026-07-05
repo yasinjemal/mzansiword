@@ -7,6 +7,7 @@ import {
   loadChapter,
 } from "@/lib/journey/loader";
 import { isLiveTrack, TRACK_NAMES } from "@/lib/tracks";
+import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -42,6 +43,11 @@ export default async function JourneyLevelPage({
   const nextChapterFirstGlobal =
     chapterEnd < entry.totalLevels ? chapterEnd + 1 : null;
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <JourneyGame
       track={track}
@@ -52,6 +58,7 @@ export default async function JourneyLevelPage({
       startLevelInChapter={addr.levelInChapter}
       nextChapterFirstGlobal={nextChapterFirstGlobal}
       theme={chapterTheme(addr.chapterIndex)}
+      authed={!!user}
     />
   );
 }

@@ -13,7 +13,9 @@ export type EventName =
   | "journey_chapter_complete"
   | "journey_bonus_word"
   | "journey_hint"
-  | "journey_moment";
+  | "journey_moment"
+  | "signature_moment"
+  | "signature_share";
 
 export function trackEvent(
   name: EventName,

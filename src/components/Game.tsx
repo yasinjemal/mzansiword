@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Board } from "./Board";
 import { Keyboard } from "./Keyboard";
@@ -8,9 +8,12 @@ import { Keyboard } from "./Keyboard";
 // revealing it would let a burner account mine the day's word for a clean
 // solve on a second account.
 import { ResultPanel } from "./ResultPanel";
+import { SignatureMomentCard } from "./SignatureMomentCard";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
+import { mergeServerAwards, recordDailySolve } from "@/lib/signature/store";
+import type { SignatureMoment } from "@/lib/signature/types";
 import type { GuessEntry, GuessResponse, PlayStateDto } from "@/lib/game/types";
 
 const FLIP_STAGGER_MS = 260;
@@ -172,11 +175,31 @@ export function Game({
     streak: initialStreak,
   });
 
+  // Signature Moments earned by the solve that just happened (Bible §6.5).
+  const [moments, setMoments] = useState<SignatureMoment[]>([]);
+  const solveRecorded = useRef(false);
+
   useEffect(() => {
     try {
       localStorage.setItem("mw:lastTrack", track);
     } catch {}
   }, [track]);
+
+  // Cross-device: pull server-known awards into the local ledger once, so a
+  // moment earned on another device isn't re-celebrated here.
+  useEffect(() => {
+    if (!authed) return;
+    let cancelled = false;
+    void fetch("/api/signature")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.awarded) mergeServerAwards(d.awarded as string[]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [authed]);
 
   // Resolve the outcome once the flip animation has played out.
   useEffect(() => {
@@ -197,8 +220,28 @@ export function Game({
       vibrate([15, 60, 15, 60, 30]);
       sfx.complete();
       void fireConfetti();
+      // Record the solve once and surface any Signature Moments after the
+      // result panel settles (guard against React strict-mode double-invoke).
+      if (!solveRecorded.current) {
+        solveRecorded.current = true;
+        const earned = recordDailySolve(
+          { currentStreak: state.streak, guessCount: used },
+          authed,
+        );
+        if (earned.length) {
+          setTimeout(() => setMoments(earned), 900);
+        }
+      }
     }
-  }, [state.revealing, state.pending, state.danceRow, state.status, state.committed.length]);
+  }, [
+    state.revealing,
+    state.pending,
+    state.danceRow,
+    state.status,
+    state.committed.length,
+    state.streak,
+    authed,
+  ]);
 
   useEffect(() => {
     if (!state.toast) return;
@@ -350,6 +393,10 @@ export function Game({
         >
           {state.toast}
         </div>
+      )}
+
+      {moments.length > 0 && (
+        <SignatureMomentCard moments={moments} onDone={() => setMoments([])} />
       )}
     </div>
   );

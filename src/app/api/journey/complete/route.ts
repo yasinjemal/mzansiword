@@ -10,6 +10,8 @@ import {
   LEVEL_REWARD,
 } from "@/lib/journey/economy";
 import { isLiveTrack } from "@/lib/tracks";
+import { sastToday, sastYesterday } from "@/lib/time";
+import { journeyActionQualifies } from "@/lib/streak/streak";
 
 const BodySchema = z.object({
   track: z.string(),
@@ -113,5 +115,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 
-  return NextResponse.json({ awarded: award, levelsCompleted: level, coins });
+  // Unified cross-mode streak (RFC-0001): a genuine new level advances the SAME
+  // profile streak as a daily-puzzle solve, via the same atomic function. Only
+  // reached on real progress (level === current + 1, award > 0), so replays and
+  // out-of-order jumps — which returned above with awarded: 0 — never tick it.
+  let streak: number | null = null;
+  if (journeyActionQualifies(award)) {
+    const { data: streakRows, error: streakErr } = await admin.rpc(
+      "update_streak_on_solve",
+      { p_user: user.id, p_today: sastToday(), p_yesterday: sastYesterday() },
+    );
+    if (!streakErr && streakRows && streakRows.length > 0) {
+      streak = streakRows[0].current_streak;
+    }
+    // A streak-write failure must not fail the (already-committed) completion;
+    // the streak is best-effort here, exactly as in the daily-guess route.
+  }
+
+  return NextResponse.json({
+    awarded: award,
+    levelsCompleted: level,
+    coins,
+    streak,
+  });
 }

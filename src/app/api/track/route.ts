@@ -17,6 +17,8 @@ const EVENT_NAMES = [
   "journey_bonus_word",
   "journey_hint",
   "journey_moment",
+  "signature_moment",
+  "signature_share",
 ] as const;
 
 const BodySchema = z.object({
