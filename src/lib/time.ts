@@ -45,6 +45,17 @@ export function addDays(sastDate: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * Whole calendar days from `from` to `to` (both 'YYYY-MM-DD'); negative if
+ * `to` precedes `from`. Mirrors Postgres `date - date`, which the shield-aware
+ * streak function relies on to count skipped days (src/lib/streak/streak.ts).
+ */
+export function daysBetween(from: string, to: string): number {
+  return Math.round(
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS,
+  );
+}
+
 /** Start of the current SAST calendar month, as an ISO instant (win cap). */
 export function sastMonthStartIso(now: Date = new Date()): string {
   return `${sastToday(now).slice(0, 7)}-01T00:00:00+02:00`;

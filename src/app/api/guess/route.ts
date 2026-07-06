@@ -12,6 +12,7 @@ import { MAX_GUESSES, type GuessEntry } from "@/lib/game/types";
 import { isSolved, score } from "@/lib/engine/score";
 import { isLiveTrack } from "@/lib/tracks";
 import { sastToday, sastYesterday } from "@/lib/time";
+import { logEvent } from "@/lib/events";
 
 const BodySchema = z.object({
   track: z.string(),
@@ -126,6 +127,8 @@ export async function POST(request: Request) {
   }
 
   let streak = profile.current_streak;
+  let shields = profile.streak_shields;
+  let shieldUsed = false;
   if (solved) {
     const { data, error } = await admin.rpc("update_streak_on_solve", {
       p_user: user.id,
@@ -134,8 +137,19 @@ export async function POST(request: Request) {
     });
     if (!error && data && data.length > 0) {
       streak = data[0].current_streak;
+      shields = data[0].shields_remaining;
+      shieldUsed = data[0].shield_used;
+      // A shield auto-saved a lapsing streak — log it distinctly so shield-users'
+      // retention can be watched separately (RFC-0002 guardrail, TELEMETRY.md).
+      if (shieldUsed) {
+        await logEvent("streak_shield_used", {
+          userId: user.id,
+          track,
+          props: { mode: "daily", streak, shields_remaining: shields },
+        });
+      }
     }
   }
 
-  return NextResponse.json({ marks, solved, gameOver, streak });
+  return NextResponse.json({ marks, solved, gameOver, streak, shields, shieldUsed });
 }

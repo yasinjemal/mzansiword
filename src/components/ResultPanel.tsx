@@ -13,8 +13,10 @@ import {
   CopyIcon,
   FlameIcon,
   GiftIcon,
+  ShieldIcon,
   WhatsAppIcon,
 } from "./icons";
+import { ShieldPips } from "./ShieldPips";
 
 const MINI_TILE: Record<Mark, string> = {
   0: "bg-[#2b3a33]",
@@ -68,6 +70,8 @@ export function ResultPanel({
   guesses,
   maxGuesses,
   streak,
+  shields,
+  shieldUsed,
 }: {
   won: boolean;
   track: TrackCode;
@@ -76,6 +80,8 @@ export function ResultPanel({
   guesses: GuessEntry[];
   maxGuesses: number;
   streak: number;
+  shields: number;
+  shieldUsed: boolean;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -114,10 +120,25 @@ export function ResultPanel({
               "So close!"
             )}
           </h2>
-          {won && streak > 0 && (
+          {won && shieldUsed && (
+            <p
+              role="status"
+              className="flex items-center gap-1.5 text-sm font-semibold text-brand"
+            >
+              <ShieldIcon className="h-4 w-4" />
+              Streak saved! A shield kept your {streak}-day streak alive.
+            </p>
+          )}
+          {won && !shieldUsed && streak > 0 && (
             <p className="flex items-center gap-1.5 text-sm font-semibold text-gold">
               <FlameIcon className="h-4 w-4 animate-flame" />
               {streak}-day streak — keep it alive tomorrow
+            </p>
+          )}
+          {won && streak > 0 && (
+            <p className="flex items-center gap-1.5 text-xs text-muted">
+              <span>Shields</span>
+              <ShieldPips held={shields} />
             </p>
           )}
           {!won && (

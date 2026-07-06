@@ -25,4 +25,8 @@ export interface GuessResponse {
   solved: boolean;
   gameOver: boolean;
   streak: number;
+  /** Streak shields remaining after this solve (RFC-0002 B1). */
+  shields: number;
+  /** True if a shield was spent to save the streak on this solve. */
+  shieldUsed: boolean;
 }

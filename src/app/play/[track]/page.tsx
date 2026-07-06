@@ -58,6 +58,7 @@ export default async function PlayPage({
 
   let initialPlay = null;
   let streak = 0;
+  let shields = 0;
   let pendingPrize = null;
   if (user) {
     const [play, profile, pending] = await Promise.all([
@@ -67,6 +68,7 @@ export default async function PlayPage({
     ]);
     initialPlay = play ? toPlayStateDto(puzzle, play) : null;
     streak = profile?.current_streak ?? 0;
+    shields = profile?.streak_shields ?? 0;
     pendingPrize = pending[0] ?? null;
   }
 
@@ -91,6 +93,7 @@ export default async function PlayPage({
         initialPlay={initialPlay}
         authed={user !== null}
         initialStreak={streak}
+        initialShields={shields}
       />
     </>
   );

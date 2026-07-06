@@ -1,6 +1,6 @@
 # MzansiWord — Build Phase Tracker
 
-**Last updated: 2026-07-05** · Companion to [`GAME-DESIGN-BIBLE.md`](./GAME-DESIGN-BIBLE.md)
+**Last updated: 2026-07-06** · Companion to [`GAME-DESIGN-BIBLE.md`](./GAME-DESIGN-BIBLE.md)
 
 This is the living build log: what's shipped, what's in progress, what's left.
 Update it in the *same commit* as the work it describes (same rule as
@@ -23,25 +23,29 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Unified cross-mode streak — Slice A (RFC-0001)** (2026-07-06).
-> Journey completion now advances the SAME profile streak as a daily solve, via
-> the existing atomic `update_streak_on_solve` function (which was already
-> track-agnostic). New shared spec module `src/lib/streak/streak.ts` +
-> `streak.test.ts` (6 cases); `/api/journey/complete` calls the streak function
-> on genuine new-level completion only (replays/URL-jumps award 0 and don't tick)
-> and returns `streak` in its response.
+> **Just shipped: Streak shields — Slice B1 (RFC-0002)** (2026-07-06). Every
+> player holds up to 2 shields; the shield-aware `update_streak_on_solve`
+> (migration `0005`) auto-consumes them to bridge short gaps instead of resetting
+> the streak — forgiving early, strict late (a gap larger than the shields held
+> still resets). Kept a **single atomic UPDATE** so the RFC-0001 concurrency
+> guarantee holds; the pure spec `src/lib/streak/streak.ts` gained matching shield
+> logic + 6 new tests (TS == SQL). `streak_shield_used` telemetry fires from both
+> modes; shield indicator (`ShieldPips`) on the profile + daily result panel, with
+> a `role="status"` "Streak saved!" moment. **B2 (repair) held** pending B1 data,
+> per the RFC decision — its columns were deliberately NOT added.
 >
-> **Verification (honest):** the pure streak algorithm is execution-verified 6/6
-> via standalone Node. `npm test` / `tsc` / `next build` **could not run in the
-> sandbox** — same documented cause as before (Windows-native vitest/rolldown
-> binary; tsc reads a stale/truncated mount view and reports phantom errors in
-> untouched files). **Run `npm test`, `npm run lint`, `npm run build` locally to
-> confirm** before prod.
+> **Verification (honest):** the pure streak algorithm (incl. shields) is
+> execution-verified via standalone Node. `npm test` / `tsc` / `next build` and
+> `supabase db push` **could not run in the sandbox** — same documented cause as
+> before (Windows-native vitest/rolldown binary; tsc reads a stale mount view).
+> **Run `npm test`, `npm run lint`, `npm run build` and push migration `0005`
+> locally to confirm** before prod.
 >
-> **Next slice:** **streak shields + free repair — Slice B** (Phase 1) — grant 2
-> shields to new players, add effort-based streak repair. Needs a new migration
-> (`0005_streak_shields.sql`) extending `profiles` + the atomic function; deferred
-> deliberately (untested schema changes to the retention spine don't ship blind).
+> **Prev slice:** Unified cross-mode streak — Slice A (RFC-0001, 2026-07-06):
+> Journey completion advances the same profile streak as a daily solve.
+>
+> **Next slice:** "Perfect Week" gold state, or B2 repair **only if** B1 data
+> shows week-one lapses that 2 shields don't catch (don't build B2 blind).
 
 ---
 
@@ -73,8 +77,8 @@ The pilot game already exists and works. This is the base every phase builds on.
 | Slice | Status | Notes / what's left |
 |---|---|---|
 | **Unified cross-mode streak** | 🟡 | **Slice A shipped (RFC-0001, 2026-07-06):** Journey completion now advances the same profile streak via `update_streak_on_solve`; shared spec `src/lib/streak/streak.ts` (+6 tests, node-verified 6/6). **Left:** run `npm test`/`build` locally; optional — thread returned `streak` into the Journey completion UI. |
-| Streak shields (2 free for new players) | ⬜ | **Slice B (next).** Survive early misses before the 7-day lock-in. Needs migration `0005` (shield count on `profiles`) + grant-on-signup. Earn/grant only — never sold (§13). |
-| Free effort-based streak repair | ⬜ | **Slice B.** Reclaim a missed day by solving extra puzzles in a window. Extends the atomic streak function. No purchase path. |
+| Streak shields (2 free for new players) | 🟡 | **Slice B1 shipped (RFC-0002, 2026-07-06):** `profiles.streak_shields` (migration `0005`, default 2 + backfill); shield-aware `update_streak_on_solve` bridges short gaps (single atomic UPDATE preserved); shared spec + 6 tests (TS == SQL); `streak_shield_used` telemetry (both modes); `ShieldPips` indicator + "Streak saved!" moment. Grant-only, never sold. **Left:** run `npm test`/`build` + `supabase db push` locally; watch shield-cohort D30 (churn-masking guardrail). |
+| Free effort-based streak repair | ⬜ | **Slice B2 — held** (RFC-0002 decision). Reclaim a missed day by solving extra puzzles in a window. Build **only if** B1 data shows lapses 2 shields don't catch; columns intentionally not yet added. No purchase path. |
 | "Perfect Week" gold state | ⬜ | No-reward pride state; cheapest sticky reward there is. |
 | **Signature Moments system (~6–8)** | 🟡 | **Engine + both game modes shipped & execution-verified.** `src/lib/signature/*` (catalog, pure detection + tests, client+server store), `SignatureMomentCard`, migration `0004`, `/api/signature`. Wired into the daily solve (`Game.tsx`) **and** Journey completion (`JourneyGame.tsx`, `authed` threaded from the level page). 13 active moments fire (first-solve, clutch/hole-in-one, streak 7/30/100/365, words 100/500/1000, chapter/journey-50). **Left (future phases):** promote the 4 `planned` moments (province-first, school #1, collections, Grade-5 vocab) once leaderboards + word categories exist. |
 | Signature-moment share cards | ✅ | `signature/share.ts` + `SignatureMomentCard` emit a spoiler-free WhatsApp card per moment. |

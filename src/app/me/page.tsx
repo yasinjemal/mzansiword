@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getMyPrizes, getProfile } from "@/lib/game/db";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ShieldPips } from "@/components/ShieldPips";
 import { FlameIcon, TrophyIcon } from "@/components/icons";
 
 export const metadata = { title: "My profile — Mzansi Word" };
@@ -52,6 +53,17 @@ export default async function MePage() {
           <p className="text-xs text-muted">Best streak</p>
         </div>
       </section>
+
+      <p className="flex items-center justify-center gap-2 text-xs text-muted">
+        <ShieldPips held={profile.streak_shields} />
+        <span>
+          {profile.streak_shields > 0
+            ? `${profile.streak_shields} streak shield${
+                profile.streak_shields === 1 ? "" : "s"
+              } — each auto-saves a missed day`
+            : "No shields — solve every day to keep your streak"}
+        </span>
+      </p>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-bold">My prizes</h2>

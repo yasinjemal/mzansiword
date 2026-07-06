@@ -32,6 +32,9 @@ interface State {
   toast: string | null;
   shaking: boolean;
   streak: number;
+  shields: number;
+  /** True only for the just-resolved solve where a shield saved the streak. */
+  shieldUsed: boolean;
 }
 
 type Action =
@@ -78,6 +81,8 @@ function reducer(state: State, action: Action): State {
         status: res.solved ? "won" : res.gameOver ? "lost" : "playing",
         danceRow: res.solved ? state.revealRow : null,
         streak: res.streak,
+        shields: res.shields,
+        shieldUsed: res.shieldUsed,
       };
     }
     case "submit_fail":
@@ -146,6 +151,7 @@ export function Game({
   initialPlay,
   authed,
   initialStreak,
+  initialShields,
 }: {
   track: TrackCode;
   trackName: string;
@@ -155,6 +161,7 @@ export function Game({
   initialPlay: PlayStateDto | null;
   authed: boolean;
   initialStreak: number;
+  initialShields: number;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, {
@@ -173,6 +180,8 @@ export function Game({
     toast: null,
     shaking: false,
     streak: initialStreak,
+    shields: initialShields,
+    shieldUsed: false,
   });
 
   // Signature Moments earned by the solve that just happened (Bible §6.5).
@@ -372,6 +381,8 @@ export function Game({
           guesses={state.committed}
           maxGuesses={maxGuesses}
           streak={state.streak}
+          shields={state.shields}
+          shieldUsed={state.shieldUsed}
         />
       )}
 

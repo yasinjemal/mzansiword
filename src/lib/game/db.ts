@@ -32,6 +32,7 @@ export interface ProfileRow {
   current_streak: number;
   best_streak: number;
   last_solved_date: string | null;
+  streak_shields: number;
   banned: boolean;
 }
 
@@ -68,7 +69,7 @@ export async function getProfile(userId: string): Promise<ProfileRow | null> {
   const { data, error } = await adminClient()
     .from("profiles")
     .select(
-      "id, phone, first_name, consent_popia_at, current_streak, best_streak, last_solved_date, banned",
+      "id, phone, first_name, consent_popia_at, current_streak, best_streak, last_solved_date, streak_shields, banned",
     )
     .eq("id", userId)
     .maybeSingle();

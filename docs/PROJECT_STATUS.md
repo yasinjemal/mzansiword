@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md — Living Dashboard
 
-**Last updated: 2026-07-06** (unified streak Slice A) · Updated every working session.
+**Last updated: 2026-07-06** (streak shields Slice B1) · Updated every working session.
 
 > **Boundary:** this is the *at-a-glance* dashboard — milestone, progress, perf,
 > top risks. The *detailed* slice-by-slice build log lives in
@@ -18,11 +18,11 @@
 Phase 1 progress   ███████░░░░░░░  ~50%   (estimate — see tracker for basis)
 ```
 
-Just shipped: **Unified cross-mode streak — Slice A** (2026-07-06) — Journey
-completions now feed the one profile streak (RFC-0001). Signature Moments engine
-landed 2026-07-05.
-Current focus: **streak shields + free repair (Slice B)** — the forgiving week-one
-layer that protects the new habit.
+Just shipped: **Streak shields — Slice B1** (2026-07-06) — every player holds up
+to 2 shields that auto-bridge short gaps so a missed day no longer resets a
+fragile new streak (RFC-0002; unified streak Slice A landed the same day).
+Current focus: **"Perfect Week" gold state** next; **B2 repair held** until B1
+data shows shields aren't enough (don't build it blind).
 
 ## Completed (foundation + Phase 1 so far)
 
@@ -36,21 +36,23 @@ layer that protects the new habit.
 ✓ Profile + POPIA consent + event tracking
 ✓ Signature Moments (engine + both modes, 13 active, 14/14 detect tests)
 ✓ Unified cross-mode streak — Slice A (Journey feeds profile streak; RFC-0001)
-  ↳ needs local npm test / build to confirm (sandbox can't run native toolchain)
+✓ Streak shields — Slice B1 (2 free, auto-bridge short gaps; RFC-0002, migration 0005)
+  ↳ needs local npm test / build + supabase db push to confirm (sandbox can't run toolchain/DB)
 ```
 
 ## In progress
 
 ```
-• Streak shields (2 free) + free effort-based repair   (Slice B — needs migration 0005)
+• (nothing mid-slice — B1 landed; pick up "Perfect Week" gold state next)
 ```
 
 ## Not started (next up in Phase 1)
 
 ```
 • "Perfect Week" gold state
+• Streak repair — Slice B2 (HELD until B1 data justifies it; RFC-0002)
 • Friend challenges (WhatsApp "beat my score")
-• (optional) surface returned streak in Journey completion UI
+• (optional) Journey-specific "streak saved" celebration card
 ```
 
 ## Blocked / at risk
@@ -63,17 +65,20 @@ layer that protects the new habit.
 
 ## Performance snapshot
 
-*Measured from the current `.next/static` build on 2026-07-06. These are raw
-totals, not per-route First Load JS — the meaningful player-facing number needs a
-fresh `next build` summary.*
+*Measured 2026-07-06 from the existing `.next/static` artifacts — but that build
+dates to 2026-07-04, so it **predates Slice A** (streak). `next build` could not run
+in this sandbox (offline: `@next/swc-linux-x64-gnu` can't be fetched from
+registry.npmjs.org), so these are raw chunk totals, not per-route First Load JS.
+The meaningful player-facing number still needs a fresh `next build` on a real
+machine.*
 
 ```
-JS  (all static chunks, raw)     ~968 KB      largest single chunk ~69 KB gz
-CSS (all, raw)                   ~47 KB
-Largest gz JS chunks             69 / 62 / 39 / 38 KB  (framework + app)
-First Load JS per route (gz)     TBD — run `next build` and record here
+JS  (all static chunks, raw)     ~984 KB      largest single chunk 69.3 KB gz
+CSS (all, raw)                   ~48 KB
+Largest gz JS chunks             69.3 / 62.3 / 38.6 / 37.7 KB  (framework + app)
+First Load JS per route (gz)     TBD — run `next build` on a real machine
 Sustained FPS (low-end Android)  TBD — measure on device (target ≥60)
-Per-feature budget (≤10 KB gz)   PASS by discipline; verify per-feature at build
+Per-feature budget (≤10 KB gz)   Not verified this run — needs per-route build
 ```
 
 > **Honesty note (Principle: 🟡 > optimistic ✅):** do not stamp "bundle budget

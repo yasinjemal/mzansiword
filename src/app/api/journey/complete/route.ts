@@ -12,6 +12,7 @@ import {
 import { isLiveTrack } from "@/lib/tracks";
 import { sastToday, sastYesterday } from "@/lib/time";
 import { journeyActionQualifies } from "@/lib/streak/streak";
+import { logEvent } from "@/lib/events";
 
 const BodySchema = z.object({
   track: z.string(),
@@ -120,6 +121,7 @@ export async function POST(request: Request) {
   // reached on real progress (level === current + 1, award > 0), so replays and
   // out-of-order jumps — which returned above with awarded: 0 — never tick it.
   let streak: number | null = null;
+  let shieldUsed = false;
   if (journeyActionQualifies(award)) {
     const { data: streakRows, error: streakErr } = await admin.rpc(
       "update_streak_on_solve",
@@ -127,6 +129,20 @@ export async function POST(request: Request) {
     );
     if (!streakErr && streakRows && streakRows.length > 0) {
       streak = streakRows[0].current_streak;
+      shieldUsed = streakRows[0].shield_used;
+      // Same guardrail event as the daily route — a shield saved the streak,
+      // this time via Journey (RFC-0002, TELEMETRY.md).
+      if (shieldUsed) {
+        await logEvent("streak_shield_used", {
+          userId: user.id,
+          track,
+          props: {
+            mode: "journey",
+            streak: streak ?? 0,
+            shields_remaining: streakRows[0].shields_remaining,
+          },
+        });
+      }
     }
     // A streak-write failure must not fail the (already-committed) completion;
     // the streak is best-effort here, exactly as in the daily-guess route.
@@ -137,5 +153,6 @@ export async function POST(request: Request) {
     levelsCompleted: level,
     coins,
     streak,
+    shieldUsed,
   });
 }

@@ -21,5 +21,6 @@ export async function GET() {
     consentGiven: profile.consent_popia_at !== null,
     currentStreak: profile.current_streak,
     bestStreak: profile.best_streak,
+    shields: profile.streak_shields,
   });
 }

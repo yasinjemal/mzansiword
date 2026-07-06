@@ -20,7 +20,8 @@ An RFC with a weak "Case against" is not ready for review.
 
 | RFC | Title | Status |
 |---|---|---|
-| [0001](./0001-unified-cross-mode-streak.md) | Unified cross-mode streak | Accepted — in progress |
+| [0001](./0001-unified-cross-mode-streak.md) | Unified cross-mode streak | Accepted — Slice A shipped |
+| [0002](./0002-streak-shields-and-repair.md) | Streak shields & free repair | Draft — B1 ready, B2 staged |
 
 ## Template
 

@@ -11,6 +11,22 @@ export function FlameIcon({ className }: IconProps) {
   );
 }
 
+export function ShieldIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M12 2 4 5v6c0 4.4 3.1 8.5 8 11 4.9-2.5 8-6.6 8-11V5l-8-3Zm0 2.1 6 2.25V11c0 3.4-2.3 6.7-6 8.8-3.7-2.1-6-5.4-6-8.8V6.35l6-2.25Z" />
+    </svg>
+  );
+}
+
+export function ShieldEmptyIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M12 2 4 5v6c0 4.4 3.1 8.5 8 11 4.9-2.5 8-6.6 8-11V5l-8-3Z" />
+    </svg>
+  );
+}
+
 export function HelpIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
