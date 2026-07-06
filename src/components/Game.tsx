@@ -11,6 +11,8 @@ import { ResultPanel } from "./ResultPanel";
 import { SignatureMomentCard } from "./SignatureMomentCard";
 import { PerfectWeekCard } from "./PerfectWeekCard";
 import { claimPerfectWeek } from "@/lib/streak/perfect-week";
+import type { Challenge } from "@/lib/challenge/token";
+import { TrophyIcon } from "./icons";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
@@ -154,6 +156,9 @@ export function Game({
   authed,
   initialStreak,
   initialShields,
+  playerName,
+  challenge,
+  challengeStale,
 }: {
   track: TrackCode;
   trackName: string;
@@ -164,6 +169,9 @@ export function Game({
   authed: boolean;
   initialStreak: number;
   initialShields: number;
+  playerName: string | null;
+  challenge: Challenge | null;
+  challengeStale: boolean;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, {
@@ -197,6 +205,21 @@ export function Game({
       localStorage.setItem("mw:lastTrack", track);
     } catch {}
   }, [track]);
+
+  // Friend challenge (RFC-0004): count an opened challenge once, and count its
+  // completion only when the board is finished *this* session (not on reload of
+  // an already-finished play).
+  const challengeOpenedRef = useRef(false);
+  const challengeDoneRef = useRef(false);
+  const finishedOnLoad = useRef(
+    (initialPlay?.solved || initialPlay?.gameOver) ?? false,
+  );
+  useEffect(() => {
+    if (challenge && !challengeOpenedRef.current) {
+      challengeOpenedRef.current = true;
+      trackEvent("challenge_opened", track, { puzzle: puzzleNumber });
+    }
+  }, [challenge, track, puzzleNumber]);
 
   // Cross-device: pull server-known awards into the local ledger once, so a
   // moment earned on another device isn't re-celebrated here.
@@ -271,6 +294,25 @@ export function Game({
     const t = setTimeout(() => dispatch({ type: "shake_end" }), 500);
     return () => clearTimeout(t);
   }, [state.shaking]);
+
+  // Count a challenge as completed once the board settles this session.
+  useEffect(() => {
+    if (!challenge || challengeDoneRef.current) return;
+    if (state.status === "playing" || state.revealing) return;
+    if (finishedOnLoad.current) return;
+    challengeDoneRef.current = true;
+    trackEvent("challenge_completed", track, {
+      puzzle: puzzleNumber,
+      result: state.status === "won" ? state.committed.length : 0,
+    });
+  }, [
+    challenge,
+    state.status,
+    state.revealing,
+    state.committed.length,
+    track,
+    puzzleNumber,
+  ]);
 
   const submit = useCallback(async () => {
     if (busy(state)) return;
@@ -370,6 +412,24 @@ export function Game({
         · {length} letters
       </p>
 
+      {!finished && challenge && (
+        <p
+          role="status"
+          className="flex items-center gap-2 rounded-xl bg-gold/10 px-3.5 py-2 text-sm font-semibold text-gold"
+        >
+          <TrophyIcon className="h-4 w-4 shrink-0" />
+          {challenge.name || "A friend"} challenges you — beat{" "}
+          {challenge.guesses === 0
+            ? `X/${maxGuesses}`
+            : `${challenge.guesses}/${maxGuesses}`}
+        </p>
+      )}
+      {!finished && challengeStale && (
+        <p className="text-xs text-muted">
+          That challenge was for an earlier word — here&apos;s today&apos;s.
+        </p>
+      )}
+
       <Board
         length={length}
         maxGuesses={maxGuesses}
@@ -391,6 +451,8 @@ export function Game({
           streak={state.streak}
           shields={state.shields}
           shieldUsed={state.shieldUsed}
+          playerName={playerName}
+          challenge={challenge}
         />
       )}
 

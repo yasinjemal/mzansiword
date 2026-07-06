@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { buildShareText, whatsappShareUrl } from "@/lib/share";
+import {
+  buildChallengeText,
+  buildShareText,
+  whatsappShareUrl,
+} from "@/lib/share";
 import { msUntilNextSastMidnight } from "@/lib/time";
 import { trackEvent } from "@/lib/track-event";
+import { encodeChallenge, type Challenge } from "@/lib/challenge/token";
+import { challengeOutcome } from "@/lib/challenge/outcome";
 import type { GuessEntry } from "@/lib/game/types";
 import type { Mark } from "@/lib/engine/score";
 import type { TrackCode } from "@/lib/engine/keyboard";
@@ -14,9 +20,16 @@ import {
   FlameIcon,
   GiftIcon,
   ShieldIcon,
+  TrophyIcon,
   WhatsAppIcon,
 } from "./icons";
 import { ShieldPips } from "./ShieldPips";
+
+const OUTCOME_STYLE: Record<string, string> = {
+  win: "bg-brand/10 text-brand",
+  loss: "bg-terracotta/10 text-terracotta",
+  draw: "bg-gold/10 text-gold",
+};
 
 const MINI_TILE: Record<Mark, string> = {
   0: "bg-[#2b3a33]",
@@ -72,6 +85,8 @@ export function ResultPanel({
   streak,
   shields,
   shieldUsed,
+  playerName,
+  challenge,
 }: {
   won: boolean;
   track: TrackCode;
@@ -82,8 +97,25 @@ export function ResultPanel({
   streak: number;
   shields: number;
   shieldUsed: boolean;
+  playerName: string | null;
+  challenge: Challenge | null;
 }) {
   const [copied, setCopied] = useState(false);
+
+  const myResult = won ? `${guesses.length}/${maxGuesses}` : `X/${maxGuesses}`;
+  const theirResult =
+    challenge && challenge.guesses > 0
+      ? `${challenge.guesses}/${maxGuesses}`
+      : `X/${maxGuesses}`;
+  const outcome = challenge
+    ? challengeOutcome({ solved: won, guesses: guesses.length }, challenge)
+    : null;
+  const outcomeLine =
+    outcome === "win"
+      ? `You beat ${challenge!.name || "them"}! ${myResult} vs ${theirResult} 🎉`
+      : outcome === "loss"
+        ? `${challenge!.name || "They"} got you — ${theirResult} vs ${myResult}. Rematch?`
+        : `Dead heat with ${challenge!.name || "them"} — ${myResult} each!`;
 
   const shareText = () =>
     buildShareText({
@@ -95,6 +127,25 @@ export function ResultPanel({
       streak,
       url: `${window.location.origin}/p/${track}`,
     });
+
+  // Outgoing challenge: a deep link carrying MY spoiler-free score, so a friend
+  // can try to beat it (or a challenger can be answered — "send it back").
+  const challengeText = () => {
+    const token = encodeChallenge({
+      name: playerName ?? "",
+      puzzle: puzzleNumber,
+      guesses: won ? guesses.length : 0,
+    });
+    return buildChallengeText({
+      name: playerName ?? "",
+      trackName,
+      puzzleNumber,
+      guesses,
+      solved: won,
+      maxGuesses,
+      url: `${window.location.origin}/p/${track}?ch=${token}`,
+    });
+  };
 
   const copy = async () => {
     try {
@@ -150,6 +201,16 @@ export function ResultPanel({
         <MiniGrid guesses={guesses} />
       </div>
 
+      {challenge && outcome && (
+        <div
+          role="status"
+          className={`mt-4 flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold ${OUTCOME_STYLE[outcome]}`}
+        >
+          <TrophyIcon className="h-5 w-5 shrink-0" />
+          {outcomeLine}
+        </div>
+      )}
+
       {won && (
         <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-brand/10 px-3.5 py-2.5 text-sm font-medium text-brand">
           <GiftIcon className="h-5 w-5 shrink-0" />
@@ -162,13 +223,16 @@ export function ResultPanel({
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            trackEvent("share_click", track);
-            window.open(whatsappShareUrl(shareText()), "_blank");
+            trackEvent("challenge_sent", track, {
+              puzzle: puzzleNumber,
+              rematch: challenge !== null,
+            });
+            window.open(whatsappShareUrl(challengeText()), "_blank");
           }}
           className="animate-glow press-spring flex cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3.5 font-display text-lg font-semibold text-ink"
         >
           <WhatsAppIcon className="h-6 w-6" />
-          Challenge your chommies
+          {challenge ? "Send it back 🔁" : "Challenge your chommies"}
         </a>
         <button
           type="button"

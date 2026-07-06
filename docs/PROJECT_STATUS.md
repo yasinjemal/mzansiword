@@ -21,10 +21,11 @@ Phase 1 progress   ███████░░░░░░░  ~50%   (estimate 
 Just shipped: **Streak shields — Slice B1** (2026-07-06) — every player holds up
 to 2 shields that auto-bridge short gaps so a missed day no longer resets a
 fragile new streak (RFC-0002; unified streak Slice A landed the same day).
-Also shipped: **Perfect Week — v1** (2026-07-06, RFC-0003) — a repeating gold
-pride state for whole-week streak multiples, reward-free and client-side.
-Current focus: **friend challenges** next; **B2 repair + Perfect-Week shields
-held** until B1 data justifies them (don't build blind).
+Also shipped: **Perfect Week — v1** (RFC-0003) and **Friend challenges — v1**
+(RFC-0004) — both 2026-07-06, both reward-free and client-side (a URL-carried,
+spoiler-free "beat my score" for challenges).
+Current focus: **double-sided referral** (SOCIAL-VIRAL #2) next; **B2 repair +
+Perfect-Week shields held** until B1 data justifies them (don't build blind).
 
 ## Completed (foundation + Phase 1 so far)
 
@@ -40,18 +41,19 @@ held** until B1 data justifies them (don't build blind).
 ✓ Unified cross-mode streak — Slice A (Journey feeds profile streak; RFC-0001)
 ✓ Streak shields — Slice B1 (2 free, auto-bridge short gaps; RFC-0002, migration 0005)
 ✓ Perfect Week — v1 (repeating gold pride state, whole-week streak multiples; RFC-0003)
+✓ Friend challenges — v1 (URL-carried spoiler-free "beat my score", both modes; RFC-0004)
 ```
 
 ## In progress
 
 ```
-• (nothing mid-slice — B1 + Perfect Week landed; pick up friend challenges next)
+• (nothing mid-slice — B1 + Perfect Week + challenges landed; pick up referral next)
 ```
 
 ## Not started (next up in Phase 1)
 
 ```
-• Friend challenges (WhatsApp "beat my score")
+• Double-sided referral (SOCIAL-VIRAL #2 — the higher-K social bet)
 • Streak repair — Slice B2 (HELD until B1 data justifies it; RFC-0002)
 • Perfect Week v2 — +1 shield per week (HELD until B1 shield-scarcity data; RFC-0003)
 • (optional) Journey-specific "streak saved" celebration card

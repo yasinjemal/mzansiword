@@ -12,6 +12,7 @@ import {
 } from "@/lib/game/db";
 import { MAX_GUESSES } from "@/lib/game/types";
 import { isLiveTrack, TRACK_NAMES } from "@/lib/tracks";
+import { decodeChallenge } from "@/lib/challenge/token";
 
 export async function generateMetadata({
   params,
@@ -32,10 +33,13 @@ export async function generateMetadata({
 
 export default async function PlayPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ track: string }>;
+  searchParams: Promise<{ ch?: string }>;
 }) {
   const { track } = await params;
+  const { ch } = await searchParams;
   if (!isLiveTrack(track)) notFound();
 
   const supabase = await createClient();
@@ -60,6 +64,7 @@ export default async function PlayPage({
   let streak = 0;
   let shields = 0;
   let pendingPrize = null;
+  let playerName: string | null = null;
   if (user) {
     const [play, profile, pending] = await Promise.all([
       getPlay(user.id, puzzle.id),
@@ -70,7 +75,16 @@ export default async function PlayPage({
     streak = profile?.current_streak ?? 0;
     shields = profile?.streak_shields ?? 0;
     pendingPrize = pending[0] ?? null;
+    playerName = profile?.first_name ?? null;
   }
+
+  // Friend challenge (RFC-0004): decode the deep-link token and keep it only if
+  // it's for TODAY's puzzle in this track. A stale/old-puzzle token is dropped —
+  // we flag it so the board can show a gentle "that was an earlier word" note.
+  const puzzleNumber = toPlayStateDto(puzzle, null).puzzleNumber;
+  const decoded = decodeChallenge(ch);
+  const challenge = decoded && decoded.puzzle === puzzleNumber ? decoded : null;
+  const challengeStale = decoded !== null && challenge === null;
 
   return (
     <>
@@ -88,12 +102,15 @@ export default async function PlayPage({
         track={track}
         trackName={TRACK_NAMES[track]}
         length={puzzle.length}
-        puzzleNumber={toPlayStateDto(puzzle, null).puzzleNumber}
+        puzzleNumber={puzzleNumber}
         maxGuesses={MAX_GUESSES}
         initialPlay={initialPlay}
         authed={user !== null}
         initialStreak={streak}
         initialShields={shields}
+        playerName={playerName}
+        challenge={challenge}
+        challengeStale={challengeStale}
       />
     </>
   );

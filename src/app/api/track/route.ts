@@ -20,6 +20,9 @@ const EVENT_NAMES = [
   "signature_moment",
   "signature_share",
   "perfect_week",
+  "challenge_sent",
+  "challenge_opened",
+  "challenge_completed",
 ] as const;
 
 const BodySchema = z.object({

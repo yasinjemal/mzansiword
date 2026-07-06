@@ -16,7 +16,10 @@ export type EventName =
   | "journey_moment"
   | "signature_moment"
   | "signature_share"
-  | "perfect_week";
+  | "perfect_week"
+  | "challenge_sent"
+  | "challenge_opened"
+  | "challenge_completed";
 
 export function trackEvent(
   name: EventName,

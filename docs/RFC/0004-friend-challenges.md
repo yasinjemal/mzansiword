@@ -1,6 +1,6 @@
 # RFC-0004 — Friend challenges ("beat my score")
 
-- **Status:** Draft — for review before code.
+- **Status:** Accepted — v1 shipped 2026-07-06 (stretch dynamic-OG preview deferred).
 - **Author / Deciders:** Growth Engineer, Senior Game Designer, Security Engineer,
   Community Manager. Reuses the share infra ([`../SOCIAL-VIRAL.md`](../SOCIAL-VIRAL.md) #3).
 - **Date:** 2026-07-06
@@ -167,10 +167,16 @@ send volume. **Hold** any coupling of challenge outcomes to rewards.
 
 ## Hand-off checklist for the IDE
 
-- [ ] Token codec `src/lib/challenge/*` (encode/decode + validity) + tests, incl. a test asserting **no letters** ever serialise.
-- [ ] `/p/[track]` preserves the query string on redirect to `/play/[track]`.
-- [ ] Play page reads + validates `ch` (matches today's puzzle/track), passes a `challenge` prop to `Game`.
-- [ ] Pre-game banner (spoiler-free) + post-solve head-to-head + "Send it back" in `ResultPanel`.
-- [ ] `challenge_sent` / `challenge_opened` / `challenge_completed` telemetry (client whitelist + enum).
-- [ ] Guest can play a challenge with zero gating (60-second rule); sanitise/length-cap the challenger name.
-- [ ] `npm test` && `npm run lint` && `npm run build`; flip PHASE-TRACKER / PROJECT_STATUS.
+- [x] Token codec `src/lib/challenge/token.ts` (encode/decode/sanitize/validity) + `outcome.ts` head-to-head; tests incl. one asserting **no letters** ever serialise (`token.test.ts` "spoiler-safety invariant").
+- [x] `/p/[track]` preserves the query string on redirect to `/play/[track]`.
+- [x] Play page reads + validates `ch` (matches today's puzzle number; track comes from the path), passes `challenge` + `challengeStale` + `playerName` to `Game`.
+- [x] Pre-game banner (spoiler-free) + post-solve head-to-head + "Send it back 🔁" in `ResultPanel`.
+- [x] `challenge_sent` / `challenge_opened` / `challenge_completed` telemetry (client whitelist + enum); `challenge_completed` only fires when finished *this* session.
+- [x] Guest can play a challenge with zero gating (60-second rule); challenger name is sanitised + length-capped in the token codec.
+- [x] `npm test` (106) && `npm run lint` (0 errors) && `npm run build` (clean); PHASE-TRACKER / PROJECT_STATUS flipped.
+
+**Deferred (honest):** the stretch **dynamic-OG preview** (so the WhatsApp link
+itself reads "Sipho challenges you…") is NOT built — the link shows the generic
+play-page preview; the challenge context appears once the friend opens the board.
+Not yet exercised in a running app (logic is unit-tested; the UI is unverified
+end-to-end).

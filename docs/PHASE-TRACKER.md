@@ -49,8 +49,14 @@ Update it in the *same commit* as the work it describes (same rule as
 > modes, client-authoritative and reward-free (no backend, no migration), deduped
 > against Signature Moments. v2 (shield refill) is HELD behind B1 data.
 >
-> **Next slice:** friend challenges (WhatsApp "beat my score"), or B2 repair **only
-> if** B1 data shows week-one lapses that 2 shields don't catch (don't build blind).
+> **Also shipped: Friend challenges — v1 (RFC-0004)** (2026-07-06). A stateless,
+> spoiler-free, reward-free "beat my score" challenge carried entirely in the
+> deep-link URL — token codec + head-to-head + "Send it back", both tracks, no
+> backend. Dynamic-OG preview deferred.
+>
+> **Next slice:** double-sided referral (SOCIAL-VIRAL #2, the higher-K social bet
+> challenges front-ran), or B2 repair **only if** B1 data shows week-one lapses
+> that 2 shields don't catch (don't build blind).
 
 ---
 
@@ -87,7 +93,7 @@ The pilot game already exists and works. This is the base every phase builds on.
 | "Perfect Week" gold state | 🟡 | **Shipped v1 (RFC-0003, 2026-07-06):** repeating no-reward gold card at every whole-week streak multiple past day 7 (14/21/28…), both modes, client-authoritative (reads returned `streak`, zero backend); pure `isPerfectWeek` + tests, `perfect_week` telemetry, deduped vs Signature Moments (milestone wins). **Left:** watch dismiss-rate (anti-wallpaper guardrail); **v2 shield-refill HELD** behind RFC-0002 B1 data. |
 | **Signature Moments system (~6–8)** | 🟡 | **Engine + both game modes shipped & execution-verified.** `src/lib/signature/*` (catalog, pure detection + tests, client+server store), `SignatureMomentCard`, migration `0004`, `/api/signature`. Wired into the daily solve (`Game.tsx`) **and** Journey completion (`JourneyGame.tsx`, `authed` threaded from the level page). 13 active moments fire (first-solve, clutch/hole-in-one, streak 7/30/100/365, words 100/500/1000, chapter/journey-50). **Left (future phases):** promote the 4 `planned` moments (province-first, school #1, collections, Grade-5 vocab) once leaderboards + word categories exist. |
 | Signature-moment share cards | ✅ | `signature/share.ts` + `SignatureMomentCard` emit a spoiler-free WhatsApp card per moment. |
-| Friend challenges ("beat my score") | ⬜ | WhatsApp deep-link into today's puzzle; reuse share infra. |
+| Friend challenges ("beat my score") | 🟡 | **Shipped v1 (RFC-0004, 2026-07-06):** stateless spoiler-free challenge in the deep-link URL — token codec (`src/lib/challenge/*`, +19 tests incl. the no-letters invariant), `/p/[track]` preserves the query, pre-game banner + post-solve head-to-head + "Send it back", `challenge_sent/opened/completed` telemetry. Reward-free & client-authoritative (outcomes feed nothing with value). **Left:** dynamic-OG preview (stretch); end-to-end play verification; watch challenge-driven activation (draw-heavy score is the honest risk). |
 | First-minute (60-second rule) audit | ⬜ | Verify no new feature gates the opening win (Bible §4). Standing check each slice. |
 | **Pilot launch checklist** | 🟡 | Legal pages exist as placeholders (`/rules`, `/privacy`); isiXhosa is DRAFT; needs native-speaker review, attorney pass, prod puzzle scheduling (see README "Before public launch"). |
 | isiXhosa wordlist expansion | 🟡 🧭 | ~390-word draft → ~15 Journey levels. Native-speaker review + growth, then regenerate. **On critical path** (Bible §13.4). Continuous. |
