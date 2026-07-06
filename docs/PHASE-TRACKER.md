@@ -44,8 +44,13 @@ Update it in the *same commit* as the work it describes (same rule as
 > **Prev slice:** Unified cross-mode streak — Slice A (RFC-0001, 2026-07-06):
 > Journey completion advances the same profile streak as a daily solve.
 >
-> **Next slice:** "Perfect Week" gold state, or B2 repair **only if** B1 data
-> shows week-one lapses that 2 shields don't catch (don't build B2 blind).
+> **Also shipped: Perfect Week — v1 (RFC-0003)** (2026-07-06). A repeating gold
+> pride state at every whole-week streak multiple past day 7 (14/21/28…), in both
+> modes, client-authoritative and reward-free (no backend, no migration), deduped
+> against Signature Moments. v2 (shield refill) is HELD behind B1 data.
+>
+> **Next slice:** friend challenges (WhatsApp "beat my score"), or B2 repair **only
+> if** B1 data shows week-one lapses that 2 shields don't catch (don't build blind).
 
 ---
 
@@ -79,7 +84,7 @@ The pilot game already exists and works. This is the base every phase builds on.
 | **Unified cross-mode streak** | 🟡 | **Slice A shipped (RFC-0001, 2026-07-06):** Journey completion now advances the same profile streak via `update_streak_on_solve`; shared spec `src/lib/streak/streak.ts` (+6 tests, node-verified 6/6). **Left:** run `npm test`/`build` locally; optional — thread returned `streak` into the Journey completion UI. |
 | Streak shields (2 free for new players) | 🟡 | **Slice B1 shipped (RFC-0002, 2026-07-06):** `profiles.streak_shields` (migration `0005`, default 2 + backfill); shield-aware `update_streak_on_solve` bridges short gaps (single atomic UPDATE preserved); shared spec + 6 tests (TS == SQL); `streak_shield_used` telemetry (both modes); `ShieldPips` indicator + "Streak saved!" moment. Grant-only, never sold. **Left:** run `npm test`/`build` + `supabase db push` locally; watch shield-cohort D30 (churn-masking guardrail). |
 | Free effort-based streak repair | ⬜ | **Slice B2 — held** (RFC-0002 decision). Reclaim a missed day by solving extra puzzles in a window. Build **only if** B1 data shows lapses 2 shields don't catch; columns intentionally not yet added. No purchase path. |
-| "Perfect Week" gold state | ⬜ | No-reward pride state; cheapest sticky reward there is. |
+| "Perfect Week" gold state | 🟡 | **Shipped v1 (RFC-0003, 2026-07-06):** repeating no-reward gold card at every whole-week streak multiple past day 7 (14/21/28…), both modes, client-authoritative (reads returned `streak`, zero backend); pure `isPerfectWeek` + tests, `perfect_week` telemetry, deduped vs Signature Moments (milestone wins). **Left:** watch dismiss-rate (anti-wallpaper guardrail); **v2 shield-refill HELD** behind RFC-0002 B1 data. |
 | **Signature Moments system (~6–8)** | 🟡 | **Engine + both game modes shipped & execution-verified.** `src/lib/signature/*` (catalog, pure detection + tests, client+server store), `SignatureMomentCard`, migration `0004`, `/api/signature`. Wired into the daily solve (`Game.tsx`) **and** Journey completion (`JourneyGame.tsx`, `authed` threaded from the level page). 13 active moments fire (first-solve, clutch/hole-in-one, streak 7/30/100/365, words 100/500/1000, chapter/journey-50). **Left (future phases):** promote the 4 `planned` moments (province-first, school #1, collections, Grade-5 vocab) once leaderboards + word categories exist. |
 | Signature-moment share cards | ✅ | `signature/share.ts` + `SignatureMomentCard` emit a spoiler-free WhatsApp card per moment. |
 | Friend challenges ("beat my score") | ⬜ | WhatsApp deep-link into today's puzzle; reuse share infra. |

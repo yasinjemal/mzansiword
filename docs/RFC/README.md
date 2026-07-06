@@ -21,7 +21,9 @@ An RFC with a weak "Case against" is not ready for review.
 | RFC | Title | Status |
 |---|---|---|
 | [0001](./0001-unified-cross-mode-streak.md) | Unified cross-mode streak | Accepted — Slice A shipped |
-| [0002](./0002-streak-shields-and-repair.md) | Streak shields & free repair | Draft — B1 ready, B2 staged |
+| [0002](./0002-streak-shields-and-repair.md) | Streak shields & free repair | Accepted — B1 shipped, B2 staged |
+| [0003](./0003-perfect-week-gold-state.md) | Perfect Week (weekly gold pride state) | Accepted — v1 shipped, v2 staged |
+| [0004](./0004-friend-challenges.md) | Friend challenges ("beat my score") | Draft — for review |
 
 ## Template
 

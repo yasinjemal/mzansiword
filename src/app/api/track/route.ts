@@ -19,6 +19,7 @@ const EVENT_NAMES = [
   "journey_moment",
   "signature_moment",
   "signature_share",
+  "perfect_week",
 ] as const;
 
 const BodySchema = z.object({

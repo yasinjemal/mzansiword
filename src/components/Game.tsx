@@ -9,6 +9,8 @@ import { Keyboard } from "./Keyboard";
 // solve on a second account.
 import { ResultPanel } from "./ResultPanel";
 import { SignatureMomentCard } from "./SignatureMomentCard";
+import { PerfectWeekCard } from "./PerfectWeekCard";
+import { claimPerfectWeek } from "@/lib/streak/perfect-week";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
@@ -186,6 +188,8 @@ export function Game({
 
   // Signature Moments earned by the solve that just happened (Bible §6.5).
   const [moments, setMoments] = useState<SignatureMoment[]>([]);
+  // Perfect Week gold state (RFC-0003) — shown only when no moment fires.
+  const [perfectWeek, setPerfectWeek] = useState(false);
   const solveRecorded = useRef(false);
 
   useEffect(() => {
@@ -239,6 +243,10 @@ export function Game({
         );
         if (earned.length) {
           setTimeout(() => setMoments(earned), 900);
+        } else if (claimPerfectWeek(state.streak)) {
+          // No Signature Moment this solve — celebrate the weekly rhythm instead
+          // (deduped per streak value; RFC-0003). Milestones take priority.
+          setTimeout(() => setPerfectWeek(true), 900);
         }
       }
     }
@@ -408,6 +416,13 @@ export function Game({
 
       {moments.length > 0 && (
         <SignatureMomentCard moments={moments} onDone={() => setMoments([])} />
+      )}
+
+      {perfectWeek && (
+        <PerfectWeekCard
+          streak={state.streak}
+          onDone={() => setPerfectWeek(false)}
+        />
       )}
     </div>
   );

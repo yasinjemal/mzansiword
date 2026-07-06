@@ -45,7 +45,9 @@ import { springEnter } from "@/lib/spring";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
 import { recordJourneyProgress } from "@/lib/signature/store";
+import { claimPerfectWeek } from "@/lib/streak/perfect-week";
 import { SignatureMomentCard } from "../SignatureMomentCard";
+import { PerfectWeekCard } from "../PerfectWeekCard";
 import type { SignatureMoment } from "@/lib/signature/types";
 import type { ChapterTheme, JourneyLevel } from "@/lib/journey/types";
 
@@ -90,6 +92,8 @@ export function JourneyGame({
   const [coins, setCoins] = useState(0);
   // Signature Moments earned by a Journey completion (Bible §6.5).
   const [sigMoments, setSigMoments] = useState<SignatureMoment[]>([]);
+  // Perfect Week gold state (RFC-0003) — a Journey level can complete the week.
+  const [perfectWeek, setPerfectWeek] = useState<number | null>(null);
 
   useEffect(() => {
     // client-only wallet hydration from localStorage
@@ -156,6 +160,17 @@ export function JourneyGame({
             fresh.coins = d.coins;
             saveLocal(fresh);
             setCoins(d.coins);
+          }
+          // Perfect Week (RFC-0003): the server's streak is authoritative here.
+          // Suppress if a Signature Moment already fired this completion — one
+          // celebration per level. Deduped per streak value across modes.
+          if (
+            earned.length === 0 &&
+            d &&
+            typeof d.streak === "number" &&
+            claimPerfectWeek(d.streak)
+          ) {
+            setPerfectWeek(d.streak);
           }
         })
         .catch(() => {});
@@ -234,6 +249,12 @@ export function JourneyGame({
         <SignatureMomentCard
           moments={sigMoments}
           onDone={() => setSigMoments([])}
+        />
+      )}
+      {perfectWeek !== null && (
+        <PerfectWeekCard
+          streak={perfectWeek}
+          onDone={() => setPerfectWeek(null)}
         />
       )}
     </>

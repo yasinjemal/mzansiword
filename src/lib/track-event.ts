@@ -15,7 +15,8 @@ export type EventName =
   | "journey_hint"
   | "journey_moment"
   | "signature_moment"
-  | "signature_share";
+  | "signature_share"
+  | "perfect_week";
 
 export function trackEvent(
   name: EventName,
