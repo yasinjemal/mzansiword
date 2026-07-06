@@ -23,7 +23,37 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Verification pass + Unified-streak completion-UI polish**
+> **Just shipped: Offensive-word filter + content pipeline** (2026-07-06). Built
+> the profanity/slur screen (`src/lib/wordlist/safety.ts`, 7 tests) — whole-word
+> exact match (no Scunthorpe false positives), no leet machinery (curated lists,
+> not adversarial input), and it **reports its own coverage** so an empty
+> per-language list can't masquerade as a working control. Wired into the two gates
+> that matter: `approve-words` refuses to approve a blocklisted word (daily), and
+> `generate` excludes them from the pool + re-checks in `validateLevel` (Journey).
+> Execution-verified: a dry run caught a slur, refused to apply, and printed the
+> honest "0 xh terms — don't trust this yet" warning. Documented the whole content
+> lifecycle in [`CONTENT_PIPELINE.md`](./CONTENT_PIPELINE.md). **120 tests**, lint,
+> build green. Deliberately did **not** build the economy/sponsor simulators or the
+> doc reorg — premature pre-launch (right systems, wrong order).
+>
+> ---
+>
+> **Prev: Launch-readiness audit + first fixes** (2026-07-06). Audited the
+> real launch surfaces (legal pages, consent flow, schema, scheduler, wordlists) —
+> not the checklist's self-assessment. Findings: **(1)** POPIA guardian consent for
+> under-18s is entirely unbuilt (the standing #1 principle) → wrote
+> [RFC-0006](./RFC/0006-age-gate-guardian-consent.md) (design accepted, build gated
+> on SA-counsel copy sign-off); **(2)** both tracks ship DRAFT with **no approval
+> tool** (English too) → built `npm run approve-words` (pure planner
+> `src/lib/wordlist/review.ts` + 7 tests, dry-run-by-default CLI, audit-logged) and
+> repointed the review checklist off hand-SQL; **(3)** README launch list was
+> missing blockers → expanded. Toolchain green (**113 tests**, lint, build); the
+> approve-words dry run is execution-verified. **No new runtime feature** — design
+> + ops tooling + honesty fixes.
+>
+> ---
+>
+> **Prev: Verification pass + Unified-streak completion-UI polish**
 > (2026-07-06). Ran the full toolchain on a real machine — `npm test` **106/106**,
 > `npm run lint` **clean** (fixed a stale unused-import warning), `next build`
 > **green** — closing the "couldn't run in the sandbox" caveat carried by Slices
@@ -116,7 +146,7 @@ The pilot game already exists and works. This is the base every phase builds on.
 | Signature-moment share cards | ✅ | `signature/share.ts` + `SignatureMomentCard` emit a spoiler-free WhatsApp card per moment. |
 | Friend challenges ("beat my score") | 🟡 | **Shipped v1 (RFC-0004, 2026-07-06):** stateless spoiler-free challenge in the deep-link URL — token codec (`src/lib/challenge/*`, +19 tests incl. the no-letters invariant), `/p/[track]` preserves the query, pre-game banner + post-solve head-to-head + "Send it back", `challenge_sent/opened/completed` telemetry. Reward-free & client-authoritative (outcomes feed nothing with value). **Left:** dynamic-OG preview (stretch); end-to-end play verification; watch challenge-driven activation (draw-heavy score is the honest risk). |
 | First-minute (60-second rule) audit | ⬜ | Verify no new feature gates the opening win (Bible §4). Standing check each slice. |
-| **Pilot launch checklist** | 🟡 | Legal pages exist as placeholders (`/rules`, `/privacy`); isiXhosa is DRAFT; needs native-speaker review, attorney pass, prod puzzle scheduling (see README "Before public launch"). |
+| **Pilot launch checklist** | 🟡 | **Audit 2026-07-06** found the README list under-reported blockers; now expanded. Open blockers: **(1) age gate + guardian consent for under-18s — NOT built** (POPIA §34–35, standing #1 principle; designed in [RFC-0006](./RFC/0006-age-gate-guardian-consent.md), gated on SA-counsel copy sign-off); (2) **no approved words** — both tracks ship DRAFT (English too), so no prod puzzles schedule until reviewed + approved — now unblocked by the `approve-words` tool + native review; (3) legal `[PROMOTER]` placeholders + attorney pass on `/rules`+`/privacy`. Watch: OTP send throttle (Supabase Auth) before a public link. |
 | isiXhosa wordlist expansion | 🟡 🧭 | ~390-word draft → ~15 Journey levels. Native-speaker review + growth, then regenerate. **On critical path** (Bible §13.4). Continuous. |
 
 ---

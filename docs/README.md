@@ -40,7 +40,7 @@ against (§18.4), so docs earn their place or they're folded in.
 
 **Business** — [`ECONOMY.md`](./ECONOMY.md) · [`MONETIZATION.md`](./MONETIZATION.md) · [`SPONSORS.md`](./SPONSORS.md) · [`EDUCATION.md`](./EDUCATION.md)
 
-**Content** — [`WORD-SYSTEM.md`](./WORD-SYSTEM.md) · [`wordlist-review-checklist.md`](./wordlist-review-checklist.md) · [`ai-backdrop-prompts.md`](./ai-backdrop-prompts.md)
+**Content** — [`CONTENT_PIPELINE.md`](./CONTENT_PIPELINE.md) · [`WORD-SYSTEM.md`](./WORD-SYSTEM.md) · [`wordlist-review-checklist.md`](./wordlist-review-checklist.md) · [`ai-backdrop-prompts.md`](./ai-backdrop-prompts.md)
 
 **Engineering & trust** — [`ARCHITECTURE.md`](./ARCHITECTURE.md) · [`SECURITY-LEGAL.md`](./SECURITY-LEGAL.md) · [`ANTI-CHEAT.md`](./ANTI-CHEAT.md) · [`ANALYTICS.md`](./ANALYTICS.md) · [`QA-TESTING.md`](./QA-TESTING.md)
 

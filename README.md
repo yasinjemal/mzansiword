@@ -73,18 +73,31 @@ Admin pages are at `/admin` — visible only to numbers in `ADMIN_PHONES`
 
 ## Before public launch (non-negotiables)
 
+- [ ] **Age gate + guardian consent for under-18s (POPIA §34–35)** — NOT yet
+      built; designed in [`docs/RFC/0006`](docs/RFC/0006-age-gate-guardian-consent.md).
+      Blocks any public launch that admits minors, and needs SA-counsel sign-off
+      of the guardian copy. (The standing #1 principle; was previously missing
+      from this list.)
 - [ ] Native-speaker review of the isiXhosa lists (see
       `docs/wordlist-review-checklist.md`) — the lists ship as AI DRAFTS.
+- [ ] **Approve the reviewed words** with `npm run approve-words -- --track xh
+      --reviewer "Name"` (dry run), then `--apply`. Nothing schedules until words
+      are `approved`; **English answers are DRAFT too**, not just isiXhosa.
 - [ ] Replace `[PROMOTER NAME]` / `[CONTACT EMAIL]` in `/rules` and
       `/privacy` pages.
 - [ ] One attorney pass over the competition rules (CPA s36) before scaling.
 - [ ] Reschedule production puzzles from approved words only (the scheduler
       refuses `--allow-draft` when `NEXT_PUBLIC_APP_URL` is production).
+- [ ] Confirm the OTP send rate limit (Supabase Auth) is tuned before a public
+      link ships — each SMS costs real money and a forwarded link spikes fast.
 
 ## Scripts
 
 - `npm test` — engine, time-boundary, RNG, and share-card unit tests
-- `npm run import-wordlists` — CSVs → `words_answers` / `words_guesses`
+- `npm run import-wordlists` — CSVs → `words_answers` / `words_guesses` (as draft)
+- `npm run approve-words -- --track xh --reviewer "Name" [--apply] [--file ...]` —
+  apply a native-speaker review (keep/drop/fix) to `words_answers.status`; dry-run
+  by default, audit-logged on `--apply`
 - `npm run schedule-puzzles -- --days N [--from YYYY-MM-DD] [--allow-draft]`
 - `npm run verify-draw [-- --draw <id>]` — reproduce a draw from its seed
 - `node scripts/make-icons.mjs` — regenerate PWA icons / OG image

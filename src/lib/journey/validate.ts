@@ -9,6 +9,7 @@ import type { JourneyLevel } from "./types";
 export function validateLevel(
   level: JourneyLevel,
   dictionary?: ReadonlySet<string>,
+  blocklist?: ReadonlySet<string>,
 ): string[] {
   const errors: string[] = [];
   const wheelCounts = letterCounts(level.wheel.join(""));
@@ -29,6 +30,8 @@ export function validateLevel(
     if (!/^[a-z]{4,6}$/.test(w)) errors.push(`bad word: ${w}`);
     if (!canForm(w, wheelCounts)) errors.push(`${w} not formable from wheel`);
     if (dictionary && !dictionary.has(w)) errors.push(`${w} not in dictionary`);
+    // No offensive word may reach a generated level (CONTENT_PIPELINE.md gate 3).
+    if (blocklist && blocklist.has(w)) errors.push(`${w} is blocklisted (offensive)`);
   }
 
   // replay the grid: letters consistent, no same-direction overlap, in bounds

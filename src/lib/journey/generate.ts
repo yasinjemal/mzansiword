@@ -5,6 +5,7 @@ import { formable } from "./anagram";
 import { layoutGrid } from "./layout";
 import { hashSeed, mulberry32, shuffleWith } from "./rng";
 import { validateLevel } from "./validate";
+import { offensiveSet } from "../wordlist/safety";
 import type { JourneyLevel } from "./types";
 
 export const LEVELS_PER_CHAPTER = 12;
@@ -113,7 +114,13 @@ function buildLevel(
 export function generateTrack(input: TrackInput): TrackOutput {
   const { track, relax = false } = input;
   const rand = mulberry32(hashSeed(input.seed ?? `mzansi-journey-${track}`));
-  const dict = [...new Set(input.all)].filter((w) => /^[a-z]{4,6}$/.test(w)).sort();
+  // Offensive words are removed from the candidate pool up front so they can
+  // never be picked as a grid or bonus word (CONTENT_PIPELINE.md gate 3); the
+  // validateLevel check below is the backstop.
+  const blockSet = offensiveSet(track);
+  const dict = [...new Set(input.all)]
+    .filter((w) => /^[a-z]{4,6}$/.test(w) && !blockSet.has(w))
+    .sort();
   const commonSet = new Set(input.common);
   const dictSet = new Set(dict);
 
@@ -165,7 +172,7 @@ export function generateTrack(input: TrackInput): TrackOutput {
     attempts.sort((a, b) => a.formableCount - b.formableCount);
     const levels = attempts.map((a, i) => {
       const level: JourneyLevel = { id: `${track}-${c + 1}-${i + 1}`, ...a.level };
-      const errors = validateLevel(level, dictSet);
+      const errors = validateLevel(level, dictSet, blockSet);
       if (errors.length > 0) {
         throw new Error(`invalid level ${level.id}: ${errors.join("; ")}`);
       }

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "import-wordlists": "tsx scripts/import-wordlists.ts",
+    "approve-words": "tsx scripts/approve-words.ts",
     "schedule-puzzles": "tsx scripts/schedule-puzzles.ts",
     "verify-draw": "tsx scripts/verify-draw.ts",
     "generate-journey": "tsx scripts/generate-journey.ts"

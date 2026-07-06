@@ -25,11 +25,15 @@ Also shipped: **Perfect Week — v1** (RFC-0003) and **Friend challenges — v1*
 (RFC-0004) — both 2026-07-06, both reward-free and client-side (a URL-carried,
 spoiler-free "beat my score" for challenges).
 Latest (2026-07-06): a **full local verification pass** (test/lint/build green,
-closing the sandbox caveat) and the **unified-streak completion UI** — the Journey
-card now shows the streak + "Streak saved!" + shield pips inline (RFC-0001 Slice A
-finished, now ✅). **Double-sided referral (RFC-0005) is deliberately held** by its
-own Decision until the pilot has an active-user base — pre-launch, growth rides the
-shipped share-card + challenge loops. **B2 repair + Perfect-Week v2 stay held**
+closing the sandbox caveat), the **unified-streak completion UI** (RFC-0001 Slice A
+finished, now ✅), and a **launch-readiness audit** — which found the #1
+non-negotiable (POPIA guardian consent for under-18s) entirely unbuilt →
+[RFC-0006](./RFC/0006-age-gate-guardian-consent.md), and no word-approval tooling
+(both tracks DRAFT) → built `npm run approve-words`, then added an **offensive-word
+filter** (both content gates) + [`CONTENT_PIPELINE.md`](./CONTENT_PIPELINE.md). **Double-sided referral
+(RFC-0005) is deliberately held** by its own Decision until the pilot has an
+active-user base — pre-launch, growth rides the shipped share-card + challenge
+loops. **B2 repair + Perfect-Week v2 stay held**
 until B1 data justifies them (don't build blind).
 
 ## Completed (foundation + Phase 1 so far)
@@ -69,8 +73,14 @@ until B1 data justifies them (don't build blind).
 ## Blocked / at risk
 
 ```
-⚠ isiXhosa dictionary depth   ~390-word DRAFT → ~15 levels   (RISK R1, critical path)
-⚠ Pilot launch                needs native review + attorney pass + prod scheduling
+⚠ POPIA guardian consent      under-18 age gate NOT built (RFC-0006) — HARD launch
+                              gate + the standing #1 principle; needs counsel sign-off
+⚠ Word approval               both tracks DRAFT (English too) → no prod puzzles until
+                              reviewed + approved; tool now exists (npm run approve-words)
+⚠ Offensive screen coverage   filter built + wired to both gates, but per-language
+                              blocklists thin (xh/af/zu = 0) → native lists needed
+⚠ isiXhosa dictionary depth   ~356-word DRAFT + only ~156 guess words   (RISK R1)
+⚠ Pilot launch                needs guardian consent + native review + attorney pass
 ⚠ Tournament / sponsor work   correctly deferred to Phase 3–4 (not blocked — sequenced)
 ```
 
