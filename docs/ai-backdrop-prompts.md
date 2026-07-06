@@ -28,12 +28,7 @@ Recompress example: `cwebp -q 60 -resize 750 1600 in.png -o table-mountain.webp`
 
 ## Per-chapter prompts
 
-### 1. `table-mountain.webp` — Table Mountain Dawn
-> Table Mountain, Cape Town at first light: the flat-topped mountain
-> silhouette with its tablecloth cloud, pre-dawn deep blue-purple sky
-> (#16283a to #4a3050), warm orange glow (#f0a05a) breaking on the horizon
-> behind Lion's Head, calm dark ocean in the foreground.
-> Negative: buildings, cable car, text, people.
+### 
 
 ### 2. `wild-coast.webp` — Wild Coast
 > Eastern Cape Wild Coast at dusk: rolling green hills meeting dramatic

@@ -66,11 +66,18 @@
 }
 
 body {
+  /* Highveld dusk: a warm sun sinking below the horizon (bottom-centre glow),
+     a faint upper sky, protea-green and terracotta ambience on the flanks, over
+     a deep vertical night. Fills the whole viewport so desktop margins read as
+     atmosphere, not void. */
   background:
-    radial-gradient(54rem 38rem at 50% -14%, rgba(255, 182, 18, 0.09), transparent 62%),
-    radial-gradient(42rem 30rem at -12% 112%, rgba(20, 181, 102, 0.07), transparent 60%),
-    radial-gradient(36rem 26rem at 112% 108%, rgba(226, 114, 91, 0.05), transparent 60%),
-    var(--background);
+    radial-gradient(64rem 26rem at 50% 120%, rgba(255, 182, 18, 0.22), transparent 60%),
+    radial-gradient(46rem 20rem at 50% 116%, rgba(226, 114, 91, 0.14), transparent 66%),
+    radial-gradient(82rem 46rem at 50% -22%, rgba(255, 182, 18, 0.08), transparent 62%),
+    radial-gradient(48rem 34rem at -12% 52%, rgba(20, 181, 102, 0.08), transparent 60%),
+    radial-gradient(48rem 34rem at 112% 46%, rgba(226, 114, 91, 0.07), transparent 60%),
+    linear-gradient(180deg, #17111f 0%, #120f17 46%, #0d0b12 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family:
     system-ui,
@@ -80,6 +87,10 @@ body {
     "Helvetica Neue",
     sans-serif;
   overscroll-behavior-y: none;
+  /* Contain full-bleed (.full-bleed = 100vw) so the scrollbar gutter can't add
+     a horizontal scrollbar. `clip` (not `hidden`) keeps the sticky header
+     working and doesn't turn body into a scroll container. */
+  overflow-x: clip;
 }
 
 /* film grain over everything — texture, not noise */
@@ -779,4 +790,75 @@ body::after {
     animation-duration: 1ms;
     animation-delay: 0ms;
   }
+}
+
+/* ================================================== dashboard surfaces
+   Premium building blocks for the profile/home dashboard (restyle 2026-07).
+   ==================================================================== */
+
+/* Break a block out of the narrow content column to full viewport width.
+   Parent must clip overflow-x so the scrollbar gutter can't cause h-scroll. */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* The go-to dashboard card: a raised surface with a warm inner light + depth. */
+.mz-panel {
+  position: relative;
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 42%),
+    linear-gradient(180deg, var(--surface-raised), var(--surface));
+  border: 1px solid var(--border-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 44px -26px rgba(0, 0, 0, 0.85);
+}
+
+/* Gold-lit hero variant for the streak centrepiece. */
+.mz-panel-gold {
+  background:
+    radial-gradient(26rem 13rem at 50% -25%, rgba(255, 182, 18, 0.18), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 42%),
+    linear-gradient(180deg, var(--surface-raised), var(--surface));
+  border-color: rgba(255, 182, 18, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 24px 54px -28px rgba(255, 182, 18, 0.28);
+}
+
+/* Conic progress ring — drive with `style={{ ['--p']: 0..100 }}`. */
+.progress-ring {
+  --p: 0;
+  --ring: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--gold-bright) 0,
+    var(--gold) calc(var(--p) * 1%),
+    rgba(255, 255, 255, 0.07) 0
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--ring)),
+    #000 calc(100% - var(--ring))
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--ring)),
+    #000 calc(100% - var(--ring))
+  );
+}
+
+/* Ndebele-inspired beadwork trim: alternating diamonds in the flag palette.
+   A bolder, more cultural cousin of the pennant .pattern-band. */
+.ndebele-trim {
+  height: 8px;
+  border-radius: 999px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='8' viewBox='0 0 32 8'%3E%3Cpath d='M4 0 8 4 4 8 0 4Z' fill='%23ffb612'/%3E%3Cpath d='M12 0 16 4 12 8 8 4Z' fill='%2314b566'/%3E%3Cpath d='M20 0 24 4 20 8 16 4Z' fill='%23e2725b'/%3E%3Cpath d='M28 0 32 4 28 8 24 4Z' fill='%2362c6ff'/%3E%3C/svg%3E");
+  background-size: auto 100%;
+  opacity: 0.85;
 }

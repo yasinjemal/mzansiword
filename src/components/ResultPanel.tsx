@@ -110,12 +110,16 @@ export function ResultPanel({
   const outcome = challenge
     ? challengeOutcome({ solved: won, guesses: guesses.length }, challenge)
     : null;
+  // Only build the line when there IS a challenge — computing it eagerly would
+  // dereference a null challenge on every normal solve.
   const outcomeLine =
-    outcome === "win"
-      ? `You beat ${challenge!.name || "them"}! ${myResult} vs ${theirResult} 🎉`
-      : outcome === "loss"
-        ? `${challenge!.name || "They"} got you — ${theirResult} vs ${myResult}. Rematch?`
-        : `Dead heat with ${challenge!.name || "them"} — ${myResult} each!`;
+    challenge && outcome
+      ? outcome === "win"
+        ? `You beat ${challenge.name || "them"}! ${myResult} vs ${theirResult} 🎉`
+        : outcome === "loss"
+          ? `${challenge.name || "They"} got you — ${theirResult} vs ${myResult}. Rematch?`
+          : `Dead heat with ${challenge.name || "them"} — ${myResult} each!`
+      : null;
 
   const shareText = () =>
     buildShareText({
