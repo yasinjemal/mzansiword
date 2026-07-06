@@ -121,6 +121,7 @@ export async function POST(request: Request) {
   // reached on real progress (level === current + 1, award > 0), so replays and
   // out-of-order jumps — which returned above with awarded: 0 — never tick it.
   let streak: number | null = null;
+  let shields: number | null = null;
   let shieldUsed = false;
   if (journeyActionQualifies(award)) {
     const { data: streakRows, error: streakErr } = await admin.rpc(
@@ -129,6 +130,7 @@ export async function POST(request: Request) {
     );
     if (!streakErr && streakRows && streakRows.length > 0) {
       streak = streakRows[0].current_streak;
+      shields = streakRows[0].shields_remaining;
       shieldUsed = streakRows[0].shield_used;
       // Same guardrail event as the daily route — a shield saved the streak,
       // this time via Journey (RFC-0002, TELEMETRY.md).
@@ -153,6 +155,7 @@ export async function POST(request: Request) {
     levelsCompleted: level,
     coins,
     streak,
+    shields,
     shieldUsed,
   });
 }

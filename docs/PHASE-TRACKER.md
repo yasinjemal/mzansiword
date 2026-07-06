@@ -23,7 +23,28 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Streak shields — Slice B1 (RFC-0002)** (2026-07-06). Every
+> **Just shipped: Verification pass + Unified-streak completion-UI polish**
+> (2026-07-06). Ran the full toolchain on a real machine — `npm test` **106/106**,
+> `npm run lint` **clean** (fixed a stale unused-import warning), `next build`
+> **green** — closing the "couldn't run in the sandbox" caveat carried by Slices
+> A/B1/Perfect-Week/Challenges. Then finished the RFC-0001 Slice A leftover: the
+> Journey `CompleteCard` now shows the unified `streak` inline (flame line, a
+> `role="status"` "Streak saved!" line when a shield bridged a gap, and
+> `ShieldPips`), matching the daily `ResultPanel`; the `/api/journey/complete`
+> route now returns `shields` too. **Referral (RFC-0005) deliberately NOT built** —
+> its own Decision gates the build on a minimum active-user threshold and we're
+> pre-launch (zero users); building the heaviest, most abuse-prone Phase-1 system
+> before there's anyone to refer from would violate the RFC + the self-critique
+> rule. Growth keeps riding the shipped share-card + friend-challenge loops.
+>
+> **Next slice:** hold referral until the pilot has a base worth referring from;
+> until then, launch-readiness (isiXhosa review, legal attorney pass, prod puzzle
+> scheduling, `supabase db push`) is the real critical path — mostly user/business
+> tasks. B2 repair + Perfect-Week v2 stay held pending B1 data (don't build blind).
+>
+> ---
+>
+> **Prev: Streak shields — Slice B1 (RFC-0002)** (2026-07-06). Every
 > player holds up to 2 shields; the shield-aware `update_streak_on_solve`
 > (migration `0005`) auto-consumes them to bridge short gaps instead of resetting
 > the streak — forgiving early, strict late (a gap larger than the shields held
@@ -87,7 +108,7 @@ The pilot game already exists and works. This is the base every phase builds on.
 
 | Slice | Status | Notes / what's left |
 |---|---|---|
-| **Unified cross-mode streak** | 🟡 | **Slice A shipped (RFC-0001, 2026-07-06):** Journey completion now advances the same profile streak via `update_streak_on_solve`; shared spec `src/lib/streak/streak.ts` (+6 tests, node-verified 6/6). **Left:** run `npm test`/`build` locally; optional — thread returned `streak` into the Journey completion UI. |
+| **Unified cross-mode streak** | ✅ | **Slice A shipped (RFC-0001, 2026-07-06):** Journey completion advances the same profile streak via `update_streak_on_solve`; shared spec `src/lib/streak/streak.ts` (+6 tests). **Completion-UI polish (2026-07-06):** the returned `streak`/`shields`/`shieldUsed` now render inline on the Journey `CompleteCard` — flame streak line, a `role="status"` "Streak saved!" line when a shield bridged a gap, and `ShieldPips` — mirroring the daily `ResultPanel` (chose inline over a new overlay card: matches daily + avoids celebration wallpaper). Route returns `shields`. Verified: `npm test` 106/106, `lint`, `build` all green locally. |
 | Streak shields (2 free for new players) | 🟡 | **Slice B1 shipped (RFC-0002, 2026-07-06):** `profiles.streak_shields` (migration `0005`, default 2 + backfill); shield-aware `update_streak_on_solve` bridges short gaps (single atomic UPDATE preserved); shared spec + 6 tests (TS == SQL); `streak_shield_used` telemetry (both modes); `ShieldPips` indicator + "Streak saved!" moment. Grant-only, never sold. **Left:** run `npm test`/`build` + `supabase db push` locally; watch shield-cohort D30 (churn-masking guardrail). |
 | Free effort-based streak repair | ⬜ | **Slice B2 — held** (RFC-0002 decision). Reclaim a missed day by solving extra puzzles in a window. Build **only if** B1 data shows lapses 2 shields don't catch; columns intentionally not yet added. No purchase path. |
 | "Perfect Week" gold state | 🟡 | **Shipped v1 (RFC-0003, 2026-07-06):** repeating no-reward gold card at every whole-week streak multiple past day 7 (14/21/28…), both modes, client-authoritative (reads returned `streak`, zero backend); pure `isPerfectWeek` + tests, `perfect_week` telemetry, deduped vs Signature Moments (milestone wins). **Left:** watch dismiss-rate (anti-wallpaper guardrail); **v2 shield-refill HELD** behind RFC-0002 B1 data. |

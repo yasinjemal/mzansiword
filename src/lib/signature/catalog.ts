@@ -12,7 +12,7 @@
 // school #1, collection completion) but need leaderboards / word categories
 // that don't exist yet, so they're excluded from detection until promoted.
 
-import type { PlayerSnapshot, SignatureMoment } from "./types";
+import type { SignatureMoment } from "./types";
 import { TIER_ORDER } from "./types";
 
 export const MOMENTS: readonly SignatureMoment[] = [

@@ -21,9 +21,11 @@ import {
   ArrowRightIcon,
   BulbIcon,
   FlameIcon,
+  ShieldIcon,
   SparkIcon,
   TargetIcon,
 } from "../icons";
+import { ShieldPips } from "../ShieldPips";
 import {
   initJourneyState,
   journeyReducer,
@@ -67,6 +69,13 @@ interface CompletionInfo {
   wordsAdded: number;
 }
 
+/** Server-authoritative unified-streak state for the completion card (RFC-0001). */
+interface StreakInfo {
+  streak: number;
+  shields: number | null;
+  shieldUsed: boolean;
+}
+
 export function JourneyGame({
   track,
   trackName,
@@ -94,6 +103,10 @@ export function JourneyGame({
   const [sigMoments, setSigMoments] = useState<SignatureMoment[]>([]);
   // Perfect Week gold state (RFC-0003) — a Journey level can complete the week.
   const [perfectWeek, setPerfectWeek] = useState<number | null>(null);
+  // Unified streak surfaced inline on the completion card (RFC-0001 Slice A
+  // leftover) — mirrors the daily ResultPanel's streak / shield feedback, filled
+  // once the server ledger response lands (client can't know the streak alone).
+  const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null);
 
   useEffect(() => {
     // client-only wallet hydration from localStorage
@@ -114,6 +127,9 @@ export function JourneyGame({
 
   const persistCompletion = useCallback(
     (info: CompletionInfo) => {
+      // Clear last level's streak line up front so a card never shows a stale
+      // streak (and replays — which tick nothing — show none at all).
+      setStreakInfo(null);
       const local = loadLocal();
       const tp = trackProgress(local, track) ?? emptyTrackProgress();
       if (globalLevel <= tp.levelsCompleted) return; // replay: nothing to award
@@ -160,6 +176,16 @@ export function JourneyGame({
             fresh.coins = d.coins;
             saveLocal(fresh);
             setCoins(d.coins);
+          }
+          // Unified streak (RFC-0001): surface the server's streak on the card,
+          // including a "streak saved" line when a shield bridged a gap. Runs
+          // independently of the Perfect Week overlay below.
+          if (d && typeof d.streak === "number") {
+            setStreakInfo({
+              streak: d.streak,
+              shields: typeof d.shields === "number" ? d.shields : null,
+              shieldUsed: d.shieldUsed === true,
+            });
           }
           // Perfect Week (RFC-0003): the server's streak is authoritative here.
           // Suppress if a Signature Moment already fired this completion — one
@@ -234,6 +260,7 @@ export function JourneyGame({
         hasNextLevel={!isLastInChapter}
         nextChapterFirstGlobal={nextChapterFirstGlobal}
         withMoment={withMoment}
+        streakInfo={streakInfo}
       />
       {moment && (
         <MzansiMoment
@@ -276,6 +303,7 @@ function LevelPlay({
   hasNextLevel,
   nextChapterFirstGlobal,
   withMoment,
+  streakInfo,
 }: {
   level: JourneyLevel;
   isLastInChapter: boolean;
@@ -291,6 +319,7 @@ function LevelPlay({
   hasNextLevel: boolean;
   nextChapterFirstGlobal: number | null;
   withMoment: (cont: () => void) => void;
+  streakInfo: StreakInfo | null;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(
@@ -607,6 +636,7 @@ function LevelPlay({
             state={state}
             accent={accent}
             chapterName={chapterName}
+            streakInfo={streakInfo}
             onNextLevel={hasNextLevel ? () => withMoment(onNext) : null}
             onNextChapter={
               state.status === "chapter_done" && nextChapterFirstGlobal
@@ -634,6 +664,7 @@ function CompleteCard({
   state,
   accent,
   chapterName,
+  streakInfo,
   onNextLevel,
   onNextChapter,
   mapHref,
@@ -641,6 +672,7 @@ function CompleteCard({
   state: JourneyState;
   accent: string;
   chapterName: string;
+  streakInfo: StreakInfo | null;
   onNextLevel: (() => void) | null;
   onNextChapter: (() => void) | null;
   mapHref: string;
@@ -680,6 +712,33 @@ function CompleteCard({
           </span>
         )}
       </p>
+      {/* Unified streak (RFC-0001) — same feedback the daily result shows, but
+          inline on the Journey card. Arrives once the server ledger responds. */}
+      {streakInfo && streakInfo.streak > 0 && (
+        <div className="animate-rise relative mt-3 flex flex-col items-center gap-1.5">
+          {streakInfo.shieldUsed ? (
+            <p
+              role="status"
+              className="flex items-center gap-1.5 text-sm font-semibold text-brand"
+            >
+              <ShieldIcon className="h-4 w-4" />
+              Streak saved! A shield kept your {streakInfo.streak}-day streak
+              alive.
+            </p>
+          ) : (
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-gold">
+              <FlameIcon className="h-4 w-4 animate-flame" />
+              {streakInfo.streak}-day streak — keep it going tomorrow
+            </p>
+          )}
+          {streakInfo.shields !== null && (
+            <p className="flex items-center gap-1.5 text-xs text-muted">
+              <span>Shields</span>
+              <ShieldPips held={streakInfo.shields} />
+            </p>
+          )}
+        </div>
+      )}
       <div className="relative mt-4 flex flex-col gap-2">
         {onNextChapter ? (
           <button

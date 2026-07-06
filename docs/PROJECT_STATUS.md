@@ -24,8 +24,13 @@ fragile new streak (RFC-0002; unified streak Slice A landed the same day).
 Also shipped: **Perfect Week — v1** (RFC-0003) and **Friend challenges — v1**
 (RFC-0004) — both 2026-07-06, both reward-free and client-side (a URL-carried,
 spoiler-free "beat my score" for challenges).
-Current focus: **double-sided referral** (SOCIAL-VIRAL #2) next; **B2 repair +
-Perfect-Week shields held** until B1 data justifies them (don't build blind).
+Latest (2026-07-06): a **full local verification pass** (test/lint/build green,
+closing the sandbox caveat) and the **unified-streak completion UI** — the Journey
+card now shows the streak + "Streak saved!" + shield pips inline (RFC-0001 Slice A
+finished, now ✅). **Double-sided referral (RFC-0005) is deliberately held** by its
+own Decision until the pilot has an active-user base — pre-launch, growth rides the
+shipped share-card + challenge loops. **B2 repair + Perfect-Week v2 stay held**
+until B1 data justifies them (don't build blind).
 
 ## Completed (foundation + Phase 1 so far)
 
@@ -38,7 +43,7 @@ Perfect-Week shields held** until B1 data justifies them (don't build blind).
 ✓ Spoiler-free WhatsApp share card
 ✓ Profile + POPIA consent + event tracking
 ✓ Signature Moments (engine + both modes, 13 active, 14/14 detect tests)
-✓ Unified cross-mode streak — Slice A (Journey feeds profile streak; RFC-0001)
+✓ Unified cross-mode streak — Slice A (Journey feeds profile streak + inline streak/shield UI on the Journey card; RFC-0001)
 ✓ Streak shields — Slice B1 (2 free, auto-bridge short gaps; RFC-0002, migration 0005)
 ✓ Perfect Week — v1 (repeating gold pride state, whole-week streak multiples; RFC-0003)
 ✓ Friend challenges — v1 (URL-carried spoiler-free "beat my score", both modes; RFC-0004)
@@ -47,16 +52,18 @@ Perfect-Week shields held** until B1 data justifies them (don't build blind).
 ## In progress
 
 ```
-• (nothing mid-slice — B1 + Perfect Week + challenges landed; pick up referral next)
+• (nothing mid-slice — verification pass + unified-streak completion UI landed)
 ```
 
 ## Not started (next up in Phase 1)
 
 ```
-• Double-sided referral (SOCIAL-VIRAL #2 — the higher-K social bet)
+• Double-sided referral (RFC-0005) — HELD by its own Decision until the pilot has
+  an active-user base worth referring from (pre-launch = zero users; don't build blind)
 • Streak repair — Slice B2 (HELD until B1 data justifies it; RFC-0002)
 • Perfect Week v2 — +1 shield per week (HELD until B1 shield-scarcity data; RFC-0003)
-• (optional) Journey-specific "streak saved" celebration card
+• Launch-readiness (real critical path): isiXhosa native review, attorney pass on
+  /rules + /privacy, prod puzzle scheduling, supabase db push — mostly user tasks
 ```
 
 ## Blocked / at risk
@@ -67,22 +74,31 @@ Perfect-Week shields held** until B1 data justifies them (don't build blind).
 ⚠ Tournament / sponsor work   correctly deferred to Phase 3–4 (not blocked — sequenced)
 ```
 
-## Performance snapshot
+## Verification snapshot (2026-07-06, real machine)
 
-*Measured 2026-07-06 from the existing `.next/static` artifacts — but that build
-dates to 2026-07-04, so it **predates Slice A** (streak). `next build` could not run
-in this sandbox (offline: `@next/swc-linux-x64-gnu` can't be fetched from
-registry.npmjs.org), so these are raw chunk totals, not per-route First Load JS.
-The meaningful player-facing number still needs a fresh `next build` on a real
-machine.*
+The "couldn't run in the sandbox" caveats on Slices A / B1 / Perfect Week /
+Challenges are now **closed** — the full toolchain was run locally on Windows:
 
 ```
-JS  (all static chunks, raw)     ~984 KB      largest single chunk 69.3 KB gz
-CSS (all, raw)                   ~48 KB
-Largest gz JS chunks             69.3 / 62.3 / 38.6 / 37.7 KB  (framework + app)
-First Load JS per route (gz)     TBD — run `next build` on a real machine
+npm test    ✅ 106/106 pass (16 files)
+npm run lint ✅ clean (fixed 1 stale unused-import warning in signature/catalog.ts)
+npm run build ✅ green — 36 routes compile, TypeScript clean
+supabase db push  ⬜ still pending (needs the live Supabase project — user task)
+```
+
+## Performance snapshot
+
+*`next build` now runs green locally (2026-07-06). **Caveat:** Next 16's build
+output no longer prints the per-route First Load JS size column to stdout, so exact
+gz-per-route numbers still aren't captured here — they need a bundle analyzer pass
+or reading `.next/build-manifest.json`. Raw chunk totals below are from the fresh
+local build.*
+
+```
+Build status                     ✅ green locally (was TBD — sandbox couldn't build)
+First Load JS per route (gz)     TBD — not emitted by Next 16 stdout; needs analyzer
 Sustained FPS (low-end Android)  TBD — measure on device (target ≥60)
-Per-feature budget (≤10 KB gz)   Not verified this run — needs per-route build
+Per-feature budget (≤10 KB gz)   Not verified — needs per-route analyzer pass
 ```
 
 > **Honesty note (Principle: 🟡 > optimistic ✅):** do not stamp "bundle budget
