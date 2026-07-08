@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md — Living Dashboard
 
-**Last updated: 2026-07-06** (streak shields Slice B1) · Updated every working session.
+**Last updated: 2026-07-08** (colour-blind symbol mode) · Updated every working session.
 
 > **Boundary:** this is the *at-a-glance* dashboard — milestone, progress, perf,
 > top risks. The *detailed* slice-by-slice build log lives in
@@ -40,7 +40,12 @@ was colour-only (the classic word-game trap); added shared `MARK_LABEL` →
 `aria-label`s on tiles + keys and a polite `aria-live` guess announcer. Then
 extended to the **Journey**: an `aria-live` region announces found/bonus/rejected
 words + completion, an sr-only instruction makes the keyboard/typing path
-discoverable, and the wheel + grid got `role="group"` labels. Zero visual change. **Double-sided referral
+discoverable, and the wheel + grid got `role="group"` labels. Zero visual change. Then closed
+the last named a11y gap with the **colour-blind symbol mode** (always-on): every
+correct tile/key carries a small dot, every wrong-spot tile/key a diamond — pure
+CSS `::after` (~0.6 KB, no DOM/JS/settings), revealed at the flip midpoint,
+reduced-motion respected; how-to-play legend updated; verified by playing
+headless at 414×896. **Double-sided referral
 (RFC-0005) is deliberately held** by its own Decision until the pilot has an
 active-user base — pre-launch, growth rides the shipped share-card + challenge
 loops. **B2 repair + Perfect-Week v2 stay held**

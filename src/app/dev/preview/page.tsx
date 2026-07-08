@@ -7,6 +7,8 @@
 
 import { notFound } from "next/navigation";
 import { useState } from "react";
+import { Board } from "@/components/Board";
+import { Keyboard } from "@/components/Keyboard";
 import { ResultPanel } from "@/components/ResultPanel";
 import { PerfectWeekCard } from "@/components/PerfectWeekCard";
 import { ShieldPips } from "@/components/ShieldPips";
@@ -63,6 +65,21 @@ export default function PreviewPage() {
           States that are hard to reach by playing. RFC-0002 B1 · 0003 · 0004.
         </p>
       </div>
+
+      <Panel title="Colour-blind glyphs — board + keyboard (dot = correct, diamond = wrong spot)">
+        <div className="flex flex-col gap-4 rounded-2xl border border-edge bg-surface p-4">
+          <Board
+            length={6}
+            maxGuesses={3}
+            committed={WIN3}
+            current=""
+            shaking={false}
+            revealRow={null}
+            danceRow={null}
+          />
+          <Keyboard track="xh" committed={WIN3} onKey={() => {}} disabled={false} />
+        </div>
+      </Panel>
 
       <Panel title="Streak shields — ShieldPips (held 2 / 1 / 0)">
         <div className="flex items-center gap-6 rounded-2xl border border-edge bg-surface p-4">

@@ -442,6 +442,60 @@ body::after {
     0 2px 0 rgba(6, 74, 41, 0.6);
 }
 
+/* ------------------------------------------- colour-blind state glyphs */
+
+/* Tile/key state must never be colour-only (a11y non-negotiable): green and
+   gold are the classic deutan/protan confusable pair, so every "correct"
+   surface also carries a small dot and every "wrong spot" surface a diamond
+   ("not in word" carries nothing). Drawn in CSS — no extra DOM, no JS, no
+   font/emoji dependency on low-end Android. */
+.tile,
+.key {
+  position: relative;
+}
+.tile-correct.tile-settled::after,
+.tile-correct.tile-reveal::after,
+.tile-present.tile-settled::after,
+.tile-present.tile-reveal::after,
+.key-correct::after,
+.key-present::after {
+  content: "";
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--ink);
+  opacity: 0.55;
+}
+.tile-correct.tile-settled::after,
+.tile-correct.tile-reveal::after,
+.key-correct::after {
+  border-radius: 50%;
+}
+.tile-present.tile-settled::after,
+.tile-present.tile-reveal::after,
+.key-present::after {
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+/* On a freshly committed row the glyph appears at the flip midpoint, together
+   with the colour it backs up (same stagger as tile-flip). */
+.tile-reveal::after {
+  animation: glyph-in 560ms ease both;
+  animation-delay: calc(var(--col) * 260ms);
+}
+@keyframes glyph-in {
+  0%,
+  49% {
+    opacity: 0;
+  }
+  51%,
+  100% {
+    opacity: 0.55;
+  }
+}
+
 /* ---------------------------------------------------------- flourishes */
 
 @keyframes rise-in {
@@ -750,7 +804,8 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tile-reveal {
+  .tile-reveal,
+  .tile-reveal::after {
     animation-duration: 1ms;
     animation-delay: 0ms;
   }

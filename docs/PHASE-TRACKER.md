@@ -1,6 +1,6 @@
 # MzansiWord — Build Phase Tracker
 
-**Last updated: 2026-07-06** · Companion to [`GAME-DESIGN-BIBLE.md`](./GAME-DESIGN-BIBLE.md)
+**Last updated: 2026-07-08** · Companion to [`GAME-DESIGN-BIBLE.md`](./GAME-DESIGN-BIBLE.md)
 
 This is the living build log: what's shipped, what's in progress, what's left.
 Update it in the *same commit* as the work it describes (same rule as
@@ -23,7 +23,28 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Journey accessibility** (2026-07-08). Extended the a11y pass to
+> **Just shipped: Colour-blind symbol mode — always-on** (2026-07-08). Closed
+> the named follow-up from the two a11y passes: tile/keyboard state still
+> reached sighted colour-blind players through hue alone, and green-vs-gold is
+> exactly the deutan/protan confusable pair (~5–8% of boys — the schools
+> audience). Every "correct" tile/key now also carries a small dark **dot**,
+> every "wrong spot" a **diamond**, "not in word" carries nothing — pure CSS
+> `::after` (~0.6 KB, zero DOM/JS/state), fading in at the flip midpoint with
+> the colour and collapsing under `prefers-reduced-motion`. Chose **always-on
+> over a settings toggle** deliberately: toggles have a discovery problem
+> (colour-blind kids don't go looking) and don't persist on shared school
+> devices; cost is a small permanent glyph on everyone's board. How-to-play
+> legend now names the marks; `/dev/preview` gained a board+keyboard glyph
+> panel. Verified by playing headless at 414×896 (Playwright): glyphs render on
+> board + keys, shapes/opacity confirmed via computed styles. 120 tests, lint,
+> build green. **Honest limits:** not validated with real colour-blind players
+> (6.4px glyphs may be *too* subtle — watch feedback); the WhatsApp share
+> emoji grid (🟩🟨⬛) is still colour-coded (universal convention, receiver
+> isn't playing); Journey target-hint cells remain pointer-only.
+>
+> ---
+>
+> **Prev: Journey accessibility** (2026-07-08). Extended the a11y pass to
 > the Journey (letter-wheel crossword). Gaps found + fixed: (1) results were
 > visual-only → a polite `aria-live` region now announces every outcome ("Found
 > STONE", "Bonus word GEM, plus five", "…is not a word here") and completion; (2)
@@ -270,5 +291,5 @@ The pilot game already exists and works. This is the base every phase builds on.
 - **60-second rule** — never gate the first-minute win (Bible §4).
 - **Perf budget** — ≤ ~10 KB gz per feature, `transform`/`opacity` only, `prefers-reduced-motion` respected (GAME-FEEL.md).
 - **POPIA** — provable guardian consent for under-18s; data minimization (Bible §15.5).
-- **Accessibility** — never colour-only (state needs text/ARIA too), one-thumb targets, screen-reader labels + live regions, plain language (Principle: colour-blind support). Daily board + Journey wheel/grid done 2026-07-08. Remaining: colour-blind *visual* symbol mode; target-hint cells are pointer-only (random-hint button is the keyboard path).
+- **Accessibility** — never colour-only (state needs text/ARIA too), one-thumb targets, screen-reader labels + live regions, plain language (Principle: colour-blind support). Daily board + Journey wheel/grid (programmatic) and the colour-blind visual symbol mode (dot/diamond glyphs, always-on) done 2026-07-08. Remaining: target-hint cells are pointer-only (random-hint button is the keyboard path).
 - **Verify by playing** — real low-end Android ideally, else headless at 414×896 (GAME-FEEL.md).

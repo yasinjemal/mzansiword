@@ -42,16 +42,16 @@ export default function HowToPlay() {
         />
         <ul className="flex flex-col gap-1.5 text-muted">
           <li>
-            <span className="font-semibold text-[#1fa14f]">Green</span> — right
-            letter, right spot.
+            <span className="font-semibold text-[#1fa14f]">Green</span> (small
+            dot) — right letter, right spot.
           </li>
           <li>
-            <span className="font-semibold text-[#d9a514]">Gold</span> — in the
-            word, but in another spot.
+            <span className="font-semibold text-[#d9a514]">Gold</span> (small
+            diamond) — in the word, but in another spot.
           </li>
           <li>
-            <span className="font-semibold text-foreground/70">Dark</span> —
-            not in the word at all.
+            <span className="font-semibold text-foreground/70">Dark</span> (no
+            mark) — not in the word at all.
           </li>
         </ul>
       </section>
