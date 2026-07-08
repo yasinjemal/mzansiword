@@ -11,7 +11,29 @@ and every amendment to [`PRINCIPLES.md`](./PRINCIPLES.md) lands here.
 
 ---
 
-### 2026-07-06 — Adopt decision-making systems; freeze the Bible
+### 2026-07-09 — Adopt the network-effect filter + vocabulary-graph moat; reject a separate EXECUTION.md
+From a founder strategy session. **Adopted (1): the network-effect design filter** —
+alongside NORTH_STAR's four questions, ask of every feature: *"how does one player
+create value for another player?"* The shared daily word is the network primitive
+(same word for everyone is what makes shares, challenges, and leagues
+commensurable — per-player difficulty would destroy it). **Adopted (2): the
+long-term moat includes the vocabulary graph** — word-level aggregates from real
+play (difficulty, common confusions, regional variants, synonym adjacency, per
+language) become a dataset for African-language learning that nobody else has.
+**Hard guardrails:** the graph is about *words, never children* — aggregates only,
+POPIA minimization stands, no per-child profiling, and any external data product
+needs counsel + a stewardship (not "we own African languages") posture. Costs
+~nothing now: keep telemetry word-level and don't discard it; the graph's value
+starts with dictionary depth (RISK R1), which was already the #1 priority.
+**Adopted (3), growth deltas:** creator/streamer challenge links as a named
+distribution channel (rides the shipped RFC-0004 tokens), family/private leagues
+as a clubs flavor, scholarship tournaments as a sponsor format. **Rejected: a new
+EXECUTION.md** — the vision/execution split already exists (NORTH_STAR = dream;
+ROADMAP = order; PHASE-TRACKER = now; PROJECT_STATUS = dashboard) and a fifth
+overlapping doc violates the anti-sprawl boundary set 2026-07-06. The daily
+execution question — *"what is the smallest improvement that makes today's
+players love the game more than yesterday?"* — lives in the tracker's Current
+focus pointer, not a new file. — Product Strategist
 On Technical-Director guidance, added the layer that turns *documentation* into
 *decision-making*: [`NORTH_STAR.md`](./NORTH_STAR.md) (top-level intent),
 [`PROJECT_STATUS.md`](./PROJECT_STATUS.md) (living dashboard), [`ADR/`](./ADR/)

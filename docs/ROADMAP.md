@@ -21,18 +21,24 @@ building all fifteen multiplayer modes ([`RISK-REGISTER.md`](./RISK-REGISTER.md)
   legal checklist; **begin isiXhosa expansion (starts now, runs continuously).**
   *(The current phase — see tracker.)*
 - **Q2 — Social retention:** Weekly League; player-chosen missions; rewarded-ad
-  integration (first revenue); intelligent/WhatsApp notifications.
+  integration (first revenue); intelligent/WhatsApp notifications; seed the
+  creator/streamer channel (the shipped challenge links, pointed at audiences —
+  distribution, not new build).
 - **Q3 — Competition & first sponsor:** async score-attack + ranked ELO/MMR;
-  clubs + club races; **first telco conversation (the pivotal partnership).**
+  clubs + club races (school / province / workplace / private family);
+  **first telco conversation (the pivotal partnership).**
 - **Q4 — Platform seed & native wrap:** tournament engine v1 (async + Swiss) with
   anti-cheat; first branded tournament; Capacitor native wrap; cosmetic economy v1.
 
 ## Year 2 — platform & institution
 
 isiZulu launch; education platform v1 (free school core, teacher dashboard,
-mastery analytics, certificates); sponsor dashboard; school-vs-school and
+mastery analytics, certificates); sponsor dashboard (incl. the scholarship-
+tournament format — education mission × sponsor economy); school-vs-school and
 province-vs-province at scale; subscription (MzansiWord Plus); season pass;
-real-time blitz duels (density-gated); monthly championships; full moderation stack.
+real-time blitz duels (density-gated); monthly championships; full moderation
+stack; first vocabulary-graph products (word difficulty / confusion aggregates —
+about words, never children; see DECISION-LOG 2026-07-09).
 
 ## Years 3–5 — national institution → African platform
 
