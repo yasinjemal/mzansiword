@@ -1,5 +1,5 @@
 import type { GuessEntry } from "@/lib/game/types";
-import type { Mark } from "@/lib/engine/score";
+import { MARK_LABEL, type Mark } from "@/lib/engine/score";
 
 const MARK_CLASS: Record<Mark, string> = {
   0: "tile-absent",
@@ -27,8 +27,19 @@ function Tile({
   } else if (letter) {
     cls += " tile-filled";
   }
+  // A revealed tile's state (correct / wrong spot / not in word) must reach
+  // colour-blind and screen-reader players — colour alone is not enough. role
+  // "img" + aria-label makes the letter AND its state a single spoken unit.
+  const a11y =
+    mark !== null
+      ? { role: "img", "aria-label": `${letter.toUpperCase()}, ${MARK_LABEL[mark]}` }
+      : {};
   return (
-    <div className={cls} style={{ "--col": col } as React.CSSProperties}>
+    <div
+      className={cls}
+      style={{ "--col": col } as React.CSSProperties}
+      {...a11y}
+    >
       {letter}
     </div>
   );

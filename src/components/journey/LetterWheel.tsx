@@ -125,7 +125,12 @@ export function LetterWheel({
   ].join(" ");
 
   return (
-    <div className="relative mx-auto" style={{ width: SIZE, height: SIZE }}>
+    <div
+      className="relative mx-auto"
+      style={{ width: SIZE, height: SIZE }}
+      role="group"
+      aria-label="Letter wheel"
+    >
       <div
         className="absolute inset-3 rounded-full border border-white/[0.07] shadow-2xl shadow-black/50 backdrop-blur-sm"
         style={{

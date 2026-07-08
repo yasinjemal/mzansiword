@@ -30,7 +30,17 @@ finished, now ✅), and a **launch-readiness audit** — which found the #1
 non-negotiable (POPIA guardian consent for under-18s) entirely unbuilt →
 [RFC-0006](./RFC/0006-age-gate-guardian-consent.md), and no word-approval tooling
 (both tracks DRAFT) → built `npm run approve-words`, then added an **offensive-word
-filter** (both content gates) + [`CONTENT_PIPELINE.md`](./CONTENT_PIPELINE.md). **Double-sided referral
+filter** (both content gates) + [`CONTENT_PIPELINE.md`](./CONTENT_PIPELINE.md).
+Latest (2026-07-07): ran the **first-minute (60-second rule) audit** — passes at
+the product level (Journey is the ungated on-ramp; no shipped feature gates the
+opening win); fixed the one rough edge (a daily guest no longer gets ambushed by a
+login bounce — upfront sign-in line + no-sign-in Journey path).
+Latest (2026-07-08): **accessibility pass** — the daily board's tile/keyboard state
+was colour-only (the classic word-game trap); added shared `MARK_LABEL` →
+`aria-label`s on tiles + keys and a polite `aria-live` guess announcer. Then
+extended to the **Journey**: an `aria-live` region announces found/bonus/rejected
+words + completion, an sr-only instruction makes the keyboard/typing path
+discoverable, and the wheel + grid got `role="group"` labels. Zero visual change. **Double-sided referral
 (RFC-0005) is deliberately held** by its own Decision until the pilot has an
 active-user base — pre-launch, growth rides the shipped share-card + challenge
 loops. **B2 repair + Perfect-Week v2 stay held**

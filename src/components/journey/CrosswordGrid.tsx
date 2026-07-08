@@ -94,6 +94,8 @@ export function CrosswordGrid({
         gridTemplateColumns: `repeat(${level.gridW}, ${cellRem}rem)`,
         gridAutoRows: `${cellRem}rem`,
       }}
+      role="group"
+      aria-label={`Crossword, ${foundWords.length} of ${level.words.length} words found`}
     >
       {rows}
     </div>

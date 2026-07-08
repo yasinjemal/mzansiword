@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Board } from "./Board";
 import { Keyboard } from "./Keyboard";
 // Note: the answer is never shown on a loss — the server never sends it, and
@@ -14,6 +15,7 @@ import { claimPerfectWeek } from "@/lib/streak/perfect-week";
 import type { Challenge } from "@/lib/challenge/token";
 import { TrophyIcon } from "./icons";
 import { BACKSPACE, ENTER, type TrackCode } from "@/lib/engine/keyboard";
+import { MARK_LABEL } from "@/lib/engine/score";
 import { sfx } from "@/lib/sound";
 import { trackEvent } from "@/lib/track-event";
 import { mergeServerAwards, recordDailySolve } from "@/lib/signature/store";
@@ -405,6 +407,23 @@ export function Game({
     ? state.committed.slice(0, -1)
     : state.committed;
 
+  // Screen-reader announcement of the most recent resolved guess — the core
+  // feedback loop is otherwise only conveyed by tile colour. Empty while a row
+  // is still flipping so it announces once, when the result actually lands.
+  const lastGuess = state.committed[state.committed.length - 1];
+  const liveText =
+    !state.revealing && lastGuess
+      ? `Guess ${state.committed.length}: ` +
+        lastGuess.marks
+          .map((m, i) => `${lastGuess.word[i].toUpperCase()} ${MARK_LABEL[m]}`)
+          .join(", ") +
+        (state.status === "won"
+          ? ". Solved it!"
+          : state.status === "lost"
+            ? ". Out of guesses."
+            : "")
+      : "";
+
   return (
     <div className="flex flex-1 flex-col items-center gap-3 pb-2">
       <p className="text-sm font-medium text-muted">
@@ -429,6 +448,32 @@ export function Game({
           That challenge was for an earlier word — here&apos;s today&apos;s.
         </p>
       )}
+
+      {/* 60-second rule (Bible §4): the daily solve is server-checked, so it
+          needs an account — but never ambush a guest. Set the expectation up
+          front and point to the Journey, which plays with zero sign-in. */}
+      {!finished && !authed && (
+        <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-center text-xs text-muted">
+          <Link
+            href={`/login?next=/play/${track}`}
+            className="font-semibold text-brand underline"
+          >
+            Sign in free
+          </Link>
+          <span>to play today&apos;s word &amp; enter tonight&apos;s draw · or</span>
+          <Link href={`/journey/${track}`} className="font-semibold text-brand underline">
+            play the Journey
+          </Link>
+          <span>— no sign-in</span>
+        </p>
+      )}
+
+      {/* Announce each resolved guess to screen readers (state is otherwise
+          colour-only on the board). Visually hidden, polite so it never
+          interrupts. */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {liveText}
+      </p>
 
       <Board
         length={length}

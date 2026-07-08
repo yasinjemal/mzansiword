@@ -6,7 +6,7 @@ import {
 } from "@/lib/engine/keyboard";
 import type { TrackCode } from "@/lib/engine/keyboard";
 import type { GuessEntry } from "@/lib/game/types";
-import type { Mark } from "@/lib/engine/score";
+import { MARK_LABEL, type Mark } from "@/lib/engine/score";
 import { BackspaceIcon } from "./icons";
 
 const KEY_MARK_CLASS: Record<Mark, string> = {
@@ -36,6 +36,15 @@ export function Keyboard({
             const wide = key === ENTER || key === BACKSPACE;
             const mark = marks[key];
             const markClass = mark !== undefined ? KEY_MARK_CLASS[mark] : "";
+            // Announce a key's learned state too, so it's not colour-only.
+            const label =
+              key === BACKSPACE
+                ? "Backspace"
+                : key === ENTER
+                  ? "Enter"
+                  : mark !== undefined
+                    ? `${key}, ${MARK_LABEL[mark]}`
+                    : key;
             return (
               <button
                 key={key}
@@ -45,7 +54,7 @@ export function Keyboard({
                 className={`key ${markClass} ${
                   wide ? "flex-[1.6] text-[0.7rem]" : "flex-1"
                 } disabled:opacity-60`}
-                aria-label={key === BACKSPACE ? "Backspace" : key}
+                aria-label={label}
               >
                 {key === BACKSPACE ? (
                   <BackspaceIcon className="h-6 w-6" />

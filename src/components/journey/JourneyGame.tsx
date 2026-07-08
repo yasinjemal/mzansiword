@@ -521,8 +521,31 @@ function LevelPlay({
 
   const bonusCount = state.foundBonus.length;
 
+  // Screen-reader feedback: the wheel + grid convey results only visually, so
+  // announce each outcome (word found / bonus / rejected) and completion via a
+  // polite live region — the a11y counterpart to the daily board's announcer.
+  const fb = state.feedback;
+  const liveText = done
+    ? state.status === "chapter_done"
+      ? "Chapter complete!"
+      : "Level cleared!"
+    : fb
+      ? fb.kind === "grid"
+        ? `Found ${fb.word.toUpperCase()}`
+        : fb.kind === "bonus"
+          ? `Bonus word ${fb.word.toUpperCase()}, plus five`
+          : fb.kind === "dupe"
+            ? `Already found ${fb.word.toUpperCase()}`
+            : fb.kind === "invalid"
+              ? `${fb.word.toUpperCase()} is not a word here`
+              : "Too short"
+      : "";
+
   return (
     <div className="flex flex-1 flex-col pb-3">
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {liveText}
+      </p>
       <div className="flex items-center justify-between py-1">
         <Link
           href={`/journey/${track}`}
@@ -610,7 +633,15 @@ function LevelPlay({
         )}
 
         {!done ? (
-          <LetterWheel
+          <>
+            {/* The wheel is drag-to-trace; typing is the keyboard/SR path but is
+                otherwise undiscoverable. Spell it out (letters + controls). */}
+            <p className="sr-only">
+              Use these letters to spell words: {level.wheel.join(", ")}. Type a
+              letter to add it, press Enter to submit a word, Backspace to remove
+              a letter, and Escape to clear.
+            </p>
+            <LetterWheel
             wheel={level.wheel}
             order={state.wheelOrder}
             selection={state.selection}
@@ -630,7 +661,8 @@ function LevelPlay({
             onTraceEnd={() => dispatch({ type: "trace_end" })}
             onTraceCancel={() => dispatch({ type: "trace_cancel" })}
             onShuffle={shuffle}
-          />
+            />
+          </>
         ) : (
           <CompleteCard
             state={state}
