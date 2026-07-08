@@ -68,21 +68,32 @@ export function CrosswordGrid({
           ? "jcell jcell-revealed"
           : `jcell jcell-empty ${nudgeCells?.has(key) ? "jcell-nudge" : ""}`;
       const tappable = targetMode && !showLetter;
+      const style = {
+        fontSize: `${cellRem * 0.55}rem`,
+        "--col": cell.animIndex ?? 0,
+      } as React.CSSProperties;
+      // In target mode an empty cell is an action, so it must be a real
+      // button — focusable, Enter/Space-activatable, named — not a div with
+      // onClick that only pointer users can reach.
       rows.push(
-        <div
-          key={key}
-          data-cell={key}
-          onClick={tappable ? () => onCellTap(key) : undefined}
-          className={`${cls} ${tappable ? "cursor-pointer ring-2 ring-gold/60" : ""}`}
-          style={
-            {
-              fontSize: `${cellRem * 0.55}rem`,
-              "--col": cell.animIndex ?? 0,
-            } as React.CSSProperties
-          }
-        >
-          {showLetter ? cell.letter : ""}
-        </div>,
+        tappable ? (
+          <button
+            key={key}
+            type="button"
+            data-cell={key}
+            onClick={() => onCellTap(key)}
+            aria-label={`Reveal the letter at row ${y + 1}, column ${x + 1}`}
+            // outline, not ring: .jcell-empty's own box-shadow (unlayered CSS)
+            // beats the layered ring-* utilities, so a ring never renders.
+            // The focused cell gets a thicker, solid-gold outline (WCAG 2.4.7).
+            className={`${cls} cursor-pointer outline-2 outline-gold/60 focus-visible:outline-4 focus-visible:outline-gold`}
+            style={style}
+          />
+        ) : (
+          <div key={key} data-cell={key} className={cls} style={style}>
+            {showLetter ? cell.letter : ""}
+          </div>
+        ),
       );
     }
   }

@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md — Living Dashboard
 
-**Last updated: 2026-07-08** (perf-budget measurement + login/me bundle fix) · Updated every working session.
+**Last updated: 2026-07-09** (Journey target-hint keyboard path) · Updated every working session.
 
 > **Boundary:** this is the *at-a-glance* dashboard — milestone, progress, perf,
 > top risks. The *detailed* slice-by-slice build log lives in
@@ -45,7 +45,14 @@ the last named a11y gap with the **colour-blind symbol mode** (always-on): every
 correct tile/key carries a small dot, every wrong-spot tile/key a diamond — pure
 CSS `::after` (~0.6 KB, no DOM/JS/settings), revealed at the flip midpoint,
 reduced-motion respected; how-to-play legend updated; verified by playing
-headless at 414×896. **Double-sided referral
+headless at 414×896.
+Latest (2026-07-09): **Journey target-hint keyboard path** — target-mode grid
+cells are now real labelled buttons (keyboard + SR reachable), both hint
+buttons have accessible names, `aria-pressed` on the toggle, focus restored
+after purchase; fixed the never-rendering gold "tappable" ring (unlayered
+box-shadow beat Tailwind `ring-*`; now an `outline` with a focus-visible
+state). All named a11y gaps are now closed; what remains is a live
+NVDA/TalkBack pass on hardware. **Double-sided referral
 (RFC-0005) is deliberately held** by its own Decision until the pilot has an
 active-user base — pre-launch, growth rides the shipped share-card + challenge
 loops. **B2 repair + Perfect-Week v2 stay held**

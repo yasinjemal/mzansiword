@@ -328,6 +328,7 @@ function LevelPlay({
     () => initJourneyState(level, isLastInChapter),
   );
   const [targetMode, setTargetMode] = useState(false);
+  const targetBtnRef = useRef<HTMLButtonElement>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [nudge, setNudge] = useState<0 | 1 | 2>(0); // 0 fine, 1 pulse cells, 2 suggest hint
   const gridWrapRef = useRef<HTMLDivElement>(null);
@@ -500,6 +501,9 @@ function LevelPlay({
 
   const targetHint = (cell: string) => {
     setTargetMode(false);
+    // The tapped cell button unmounts with target mode — put keyboard focus
+    // back on the toggle instead of dropping it to <body>.
+    targetBtnRef.current?.focus();
     if (!onSpend(TARGET_HINT_COST)) {
       setToast("Not enough coins — find bonus words!");
       sfx.invalid();
@@ -609,9 +613,12 @@ function LevelPlay({
 
         {!done && (
           <div className="flex w-full max-w-xs items-center justify-between px-2">
+            {/* Icon + price alone reads as "button, 5" to a screen reader —
+                name what each hint actually does. */}
             <button
               type="button"
               onClick={randomHint}
+              aria-label={`Hint: reveal a random letter (${HINT_COST} coins)`}
               className={`chip-glass press-spring flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-gold ${
                 nudge === 2 ? "animate-glow-gold" : ""
               }`}
@@ -621,7 +628,10 @@ function LevelPlay({
             </button>
             <button
               type="button"
+              ref={targetBtnRef}
               onClick={() => setTargetMode((t) => !t)}
+              aria-pressed={targetMode}
+              aria-label={`Target hint: choose a square to reveal (${TARGET_HINT_COST} coins)`}
               className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold ${
                 targetMode ? "btn-gold" : "chip-glass press-spring text-gold"
               }`}
@@ -684,8 +694,11 @@ function LevelPlay({
       </div>
 
       {targetMode && !done && (
-        <p className="pb-1 text-center text-xs text-gold">
-          Tap any empty square to reveal it ({TARGET_HINT_COST} coins)
+        // role="status": announce the mode change + how to use it (the empty
+        // squares just became buttons — Tab reaches them, Enter reveals).
+        <p role="status" className="pb-1 text-center text-xs text-gold">
+          Tap or Tab to any empty square to reveal it ({TARGET_HINT_COST}{" "}
+          coins)
         </p>
       )}
     </div>

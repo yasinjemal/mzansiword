@@ -23,7 +23,26 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Perf-budget measurement + a 62 KB login/me diet** (2026-07-08).
+> **Just shipped: Journey target-hint keyboard path** (2026-07-09). Closed the
+> last named a11y gap: in target mode the grid's empty cells were `div`s with
+> `onClick` — unreachable by keyboard/switch users and invisible to screen
+> readers. They're now real `<button>`s (focusable, Enter/Space, labelled
+> "Reveal the letter at row R, column C"); the target toggle gained
+> `aria-pressed` and a name (it read as "button, 5" before — both hint buttons
+> did); the instruction line is a `role="status"` announcement; and focus
+> returns to the toggle after a purchase instead of dropping to `<body>`.
+> Also caught + fixed a **pre-existing visual bug**: the gold "tappable" ring
+> never rendered (`.jcell-empty`'s unlayered box-shadow beats Tailwind's
+> layered `ring-*`, which is also box-shadow) — switched to `outline` with a
+> thicker solid `focus-visible` state (WCAG 2.4.7). Verified by playing
+> (Playwright, clean localStorage): toggle → Tab → Enter reveals exactly one
+> cell, spends 50 coins, no phantom words, focus lands back on the toggle.
+> **Honest limits:** still no live screen-reader pass; the earlier "one hint
+> found a word" scare was stale localStorage, not a bug (re-verified clean).
+>
+> ---
+>
+> **Prev: Perf-budget measurement + a 62 KB login/me diet** (2026-07-08).
 > The ≤10 KB/feature budget (a standing rule) had never been measured — Next 16
 > stopped printing First Load JS, so the dashboard carried "TBD". Built
 > `npm run perf-budget` (`scripts/perf-budget.ts`): gzips the real chunks from
@@ -312,5 +331,5 @@ The pilot game already exists and works. This is the base every phase builds on.
 - **60-second rule** — never gate the first-minute win (Bible §4).
 - **Perf budget** — ≤ ~10 KB gz per feature, `transform`/`opacity` only, `prefers-reduced-motion` respected (GAME-FEEL.md).
 - **POPIA** — provable guardian consent for under-18s; data minimization (Bible §15.5).
-- **Accessibility** — never colour-only (state needs text/ARIA too), one-thumb targets, screen-reader labels + live regions, plain language (Principle: colour-blind support). Daily board + Journey wheel/grid (programmatic) and the colour-blind visual symbol mode (dot/diamond glyphs, always-on) done 2026-07-08. Remaining: target-hint cells are pointer-only (random-hint button is the keyboard path).
+- **Accessibility** — never colour-only (state needs text/ARIA too), one-thumb targets, screen-reader labels + live regions, plain language (Principle: colour-blind support). Daily board + Journey wheel/grid (programmatic), colour-blind symbol mode (dot/diamond glyphs), and the target-hint keyboard path all done 2026-07-08/09. Remaining: a live NVDA/TalkBack pass on real hardware (all shipped a11y is ARIA-pattern + headless verified).
 - **Verify by playing** — real low-end Android ideally, else headless at 414×896 (GAME-FEEL.md).
