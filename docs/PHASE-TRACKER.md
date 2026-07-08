@@ -23,7 +23,28 @@ Update it in the *same commit* as the work it describes (same rule as
 
 ## 🧭 Current focus
 
-> **Just shipped: Colour-blind symbol mode — always-on** (2026-07-08). Closed
+> **Just shipped: Perf-budget measurement + a 62 KB login/me diet** (2026-07-08).
+> The ≤10 KB/feature budget (a standing rule) had never been measured — Next 16
+> stopped printing First Load JS, so the dashboard carried "TBD". Built
+> `npm run perf-budget` (`scripts/perf-budget.ts`): gzips the real chunks from
+> each route's client-reference manifest, prints first-load / route-only / CSS
+> per route against the budget. **First real numbers found a real problem:**
+> `/login` (64.8 KB route-only) and `/me` (62.6 KB) were shipping the entire
+> supabase-js client in first paint — `/me` just for the Sign out button's
+> click handler. Fixed with dynamic imports (login warms the chunk post-mount
+> so submit isn't slowed on 3G): now **2.6 KB and 0.4 KB**. Verified by playing
+> (Playwright): OTP submit reaches supabase through the lazy chunk and errors
+> gracefully (live OTP needs the user's Supabase/Twilio setup). Remaining ⚠:
+> `/journey/[track]/[level]` at 17.2 KB route-only — the whole Journey mode on
+> one page (several features), acceptable but the page to watch. Shared
+> baseline is 151 KB gz (framework+layout — outside the per-feature rule,
+> real first-visit data cost). 120 tests, lint, build green. **Honest limits:**
+> FPS on low-end Android still unmeasured; "route-only" is an upper bound per
+> feature, not a per-feature attribution.
+>
+> ---
+>
+> **Prev: Colour-blind symbol mode — always-on** (2026-07-08). Closed
 > the named follow-up from the two a11y passes: tile/keyboard state still
 > reached sighted colour-blind players through hue alone, and green-vs-gold is
 > exactly the deutan/protan confusable pair (~5–8% of boys — the schools

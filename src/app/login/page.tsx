@@ -1,14 +1,20 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { deviceFingerprint } from "@/lib/fingerprint";
 import { normalizeSaPhone } from "@/lib/phone";
 import { trackEvent } from "@/lib/track-event";
 
 type Step = "phone" | "otp" | "profile";
+
+// supabase-js is ~60 KB gz — keep it out of the page's first paint
+// (PERFORMANCE.md budget) and load it when auth actually happens. The form
+// warms the chunk right after mount, so by the time a phone number is typed
+// the import is already cached even on slow 3G.
+const supabaseClient = () =>
+  import("@/lib/supabase/client").then((m) => m.createClient());
 
 function LoginForm() {
   const router = useRouter();
@@ -26,6 +32,11 @@ function LoginForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Warm the supabase chunk in the background while the user types.
+  useEffect(() => {
+    void import("@/lib/supabase/client");
+  }, []);
+
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -35,7 +46,7 @@ function LoginForm() {
       return;
     }
     setBusy(true);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { error: err } = await supabase.auth.signInWithOtp({
       phone: normalized,
     });
@@ -62,7 +73,7 @@ function LoginForm() {
       const { email, password } = await res.json();
 
       // 2. Sign in on the client to establish the session cookie.
-      const supabase = createClient();
+      const supabase = await supabaseClient();
       const { error: err } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -85,7 +96,7 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { error: err } = await supabase.auth.verifyOtp({
       phone,
       token: otp.trim(),

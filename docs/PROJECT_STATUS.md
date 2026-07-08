@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md — Living Dashboard
 
-**Last updated: 2026-07-08** (colour-blind symbol mode) · Updated every working session.
+**Last updated: 2026-07-08** (perf-budget measurement + login/me bundle fix) · Updated every working session.
 
 > **Boundary:** this is the *at-a-glance* dashboard — milestone, progress, perf,
 > top risks. The *detailed* slice-by-slice build log lives in
@@ -111,25 +111,34 @@ npm run build ✅ green — 36 routes compile, TypeScript clean
 supabase db push  ⬜ still pending (needs the live Supabase project — user task)
 ```
 
-## Performance snapshot
+## Performance snapshot (2026-07-08 — first real numbers)
 
-*`next build` now runs green locally (2026-07-06). **Caveat:** Next 16's build
-output no longer prints the per-route First Load JS size column to stdout, so exact
-gz-per-route numbers still aren't captured here — they need a bundle analyzer pass
-or reading `.next/build-manifest.json`. Raw chunk totals below are from the fresh
-local build.*
+*Measured by the new `npm run perf-budget` (gzips the actual chunks from the
+route client-reference manifests — Next 16 stopped printing sizes). "Route-only"
+= a route's first-load JS minus the chunks every route shares; it's the upper
+bound on any one feature there.*
 
 ```
-Build status                     ✅ green locally (was TBD — sandbox couldn't build)
-First Load JS per route (gz)     TBD — not emitted by Next 16 stdout; needs analyzer
+Build status                     ✅ green locally
+Shared baseline (all routes)     151.0 KB gz  (framework + layout; cached after 1st visit)
+CSS (all routes)                 10.7 KB gz
+Route-only, worst first:
+  /journey/[track]/[level]       17.2 KB  ⚠ whole Journey mode (wheel+grid+reducer+sky
+                                            = several features; no single feature ≥10)
+  /play/[track]                   9.2 KB  ok — the entire daily game
+  /                               4.3 KB  ok
+  /login                          2.6 KB  ok — WAS 64.8 KB (supabase-js now lazy)
+  /me                             0.4 KB  ok — WAS 62.6 KB (SignOutButton pulled supabase-js)
+  everything else                ≤ 5.7 KB ok
 Sustained FPS (low-end Android)  TBD — measure on device (target ≥60)
-Per-feature budget (≤10 KB gz)   Not verified — needs per-route analyzer pass
 ```
 
-> **Honesty note (Principle: 🟡 > optimistic ✅):** do not stamp "bundle budget
-> PASS" globally until per-route First Load JS is measured. The ≤10 KB rule is
-> *per feature*, not total app. Record real numbers here after the next
-> `next build`. See [`PERFORMANCE.md`](./PERFORMANCE.md).
+> **Honesty note:** the ≤10 KB rule is per *feature*; the 151 KB shared baseline
+> is framework + root layout, outside that rule but real data cost on first
+> visit (cached afterwards). The Journey-level
+> route bundles the whole mode — fine today, but it's the page to watch. FPS
+> remains unmeasured on hardware. Re-run `npm run perf-budget` after any
+> feature and record deltas here. See [`PERFORMANCE.md`](./PERFORMANCE.md).
 
 ## Top open risks (full register: [`RISK-REGISTER.md`](./RISK-REGISTER.md))
 

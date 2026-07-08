@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -10,6 +9,9 @@ export function SignOutButton() {
       type="button"
       className="self-start cursor-pointer text-muted underline transition-colors hover:text-foreground"
       onClick={async () => {
+        // supabase-js is ~60 KB gz — load it when the user actually signs
+        // out, not in the profile page's first paint (PERFORMANCE.md budget).
+        const { createClient } = await import("@/lib/supabase/client");
         await createClient().auth.signOut();
         router.push("/");
         router.refresh();

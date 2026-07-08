@@ -12,6 +12,7 @@
     "approve-words": "tsx scripts/approve-words.ts",
     "schedule-puzzles": "tsx scripts/schedule-puzzles.ts",
     "verify-draw": "tsx scripts/verify-draw.ts",
+    "perf-budget": "tsx scripts/perf-budget.ts",
     "generate-journey": "tsx scripts/generate-journey.ts"
   },
   "dependencies": {

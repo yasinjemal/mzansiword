@@ -27,10 +27,17 @@ feel within budget (see GAME-FEEL.md A–C). No heavy dependencies in `package.j
 
 ## Measurement, not guessing
 
+- **Bundle sizes:** `npm run build && npm run perf-budget` — gzips the real
+  chunks per route (Next 16 no longer prints First Load JS) and flags any route
+  whose route-only JS exceeds the budget. Record the numbers in
+  [`PROJECT_STATUS.md`](./PROJECT_STATUS.md) after every feature.
 - Verify on a **real low-end Android** where possible; else headless at 414×896.
 - Track bundle KB per route, FPS during FX, TTI/cold-start, and cache hit rate
   ([`ANALYTICS.md`](./ANALYTICS.md)).
 - Every performance decision is measured; nothing is assumed.
+- **Keep supabase-js out of first paint** — it's ~60 KB gz; import it
+  dynamically at the moment of auth (see `login/page.tsx`, `SignOutButton.tsx`,
+  caught by the first perf-budget run 2026-07-08).
 
 ## The native-wrap note
 
